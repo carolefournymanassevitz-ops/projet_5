@@ -1,6 +1,9 @@
 # --- Outil IA (Claude Code) : pas d'artefact IA dans l'historique Git ---
 .claude/
 
+# --- Truststore local (certificat d'antivirus interceptant le HTTPS) ---
+.certs/
+
 # --- Secrets ---
 .env
 *.env
