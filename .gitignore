@@ -1,1 +1,32 @@
+# --- Outil IA (Claude Code) : pas d'artefact IA dans l'historique Git ---
+.claude/
+
+# --- Secrets ---
+.env
+*.env
+!.env.example
+
+# --- Build Maven / Java ---
+target/
+*.class
+*.war
+*.jar
+
+# --- Eclipse ---
 .project
+.classpath
+.settings/
+bin/
+
+# --- IntelliJ / VS Code ---
+.idea/
+*.iml
+.vscode/
+
+# --- OS ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Logs ---
+*.log
