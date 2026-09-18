@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Méthode d'audit technique</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1a1a1a;
+    --soft: #4a4845;
+    --faint: #7d7873;
+    --line: #ddd8d1;
+    --line2: #eeeae4;
+    --accent: #6b4ee6;
+    --accent-bg: #f2eefe;
+    --ok: #1a7048;
+    --ok-bg: #e9f4ee;
+    --no: #a8261e;
+    --no-bg: #fbebea;
+    --mono: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-size: 9.7pt;
+    line-height: 1.42;
+    margin: 0;
+  }
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 26px 30px 40px;
+  }
+  @page { margin: 12mm 11mm; }
+
+  header.top {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 12px;
+    margin-bottom: 22px;
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 8.5pt;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 7px;
+  }
+  h1 {
+    font-size: 21pt;
+    line-height: 1.1;
+    margin: 0 0 8px;
+    letter-spacing: -.02em;
+    font-weight: 600;
+  }
+  .sub {
+    color: var(--soft);
+    font-size: 10.5pt;
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  h2 {
+    font-size: 11.6pt;
+    margin: 15px 0 6px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+  }
+  h2::before {
+    content: attr(data-n);
+    font-family: var(--mono);
+    font-size: 8pt;
+    color: #fff;
+    background: var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+  h3 {
+    font-size: 10pt;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--faint);
+    margin: 15px 0 6px;
+    font-weight: 500;
+  }
+  p { margin: 0 0 9px; }
+  ul, ol { margin: 0 0 9px; padding-left: 19px; }
+  li { margin-bottom: 4px; }
+  code {
+    font-family: var(--mono);
+    font-size: .87em;
+    background: var(--line2);
+    padding: .1em .32em;
+    border-radius: 3px;
+  }
+  b, strong { font-weight: 600; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 9pt;
+    margin: 9px 0 13px;
+  }
+  th {
+    text-align: left;
+    font-size: 7.8pt;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--faint);
+    border-bottom: 1px solid var(--ink);
+    padding: 0 9px 5px 0;
+    font-weight: 600;
+  }
+  td {
+    padding: 7px 9px 7px 0;
+    border-bottom: 1px solid var(--line2);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .rule {
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    padding: 9px 13px;
+    margin: 9px 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .rule p { margin: 0; }
+  .rule .lbl {
+    font-family: var(--mono);
+    font-size: 7.8pt;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 11px 0 14px;
+  }
+  .col {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 11px 14px;
+  }
+  .col.yes { background: var(--ok-bg); border-color: #c3e0ce; }
+  .col.no  { background: var(--no-bg); border-color: #eccbc8; }
+  .col h4 {
+    margin: 0 0 7px;
+    font-size: 9pt;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .col.yes h4 { color: var(--ok); }
+  .col.no h4 { color: var(--no); }
+  .col ul { margin: 0; padding-left: 16px; font-size: 9.5pt; }
+  .col li { margin-bottom: 4px; }
+
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 10px 0; }
+  .steps > li {
+    counter-increment: s;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 11px;
+  }
+  .steps > li::before {
+    content: counter(s);
+    position: absolute;
+    left: 0; top: 1px;
+    width: 20px; height: 20px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 50%;
+    font-family: var(--mono);
+    font-size: 8.5pt;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .steps > li > b:first-child { display: block; margin-bottom: 1px; }
+
+  .quote {
+    border-left: 2px solid var(--line);
+    padding-left: 14px;
+    color: var(--soft);
+    font-style: italic;
+    margin: 10px 0;
+  }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--line2);
+    color: var(--soft);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  footer.end {
+    border-top: 1px solid var(--line);
+    margin-top: 26px;
+    padding-top: 12px;
+    font-size: 8.5pt;
+    color: var(--faint);
+    font-family: system-ui, sans-serif;
+  }
+
+  @media print {
+    .page { max-width: 100%; padding: 0; }
+    h2 { page-break-after: avoid; }
+    .split, .rule, table, .col { page-break-inside: avoid; }
+    .pb { page-break-before: always; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="page">
+
+<header class="top">
+  <div class="kicker">Aide-mémoire · architecture logicielle</div>
+  <h1>Conduire un audit technique efficace</h1>
+  <p class="sub">
+    La méthode, les mesures qui comptent, les pièges — et les référentiels à avoir en tête.
+    Tiré d'un audit réel d'application legacy, y compris de ce qui a dû y être corrigé.
+  </p>
+</header>
+
+<h2 data-n="1">Ce qu'un audit est, et ce qu'il n'est pas</h2>
+
+<p>
+  Un audit n'est pas une revue de code. C'est un <b>état des lieux qui prépare une décision</b>,
+  souvent un investissement. Le lecteur n'est pas un développeur : c'est celui qui signe.
+</p>
+
+<div class="quote">
+  Le diagnostic avant travaux. L'expert ne dit pas « abattez ce mur ». Il dit : voilà la
+  structure, voilà les fissures, voilà ce qui arrive si vous ajoutez un étage. La décision
+  reste au propriétaire.
+</div>
+
+<div class="split">
+  <div class="col yes">
+    <h4>L'audit fait</h4>
+    <ul>
+      <li>Constater, avec des preuves</li>
+      <li>Expliquer le mécanisme d'un problème</li>
+      <li>Chiffrer quand c'est possible</li>
+      <li>Hiérarchiser par impact métier</li>
+      <li>Dire ce qui est sain et à garder</li>
+    </ul>
+  </div>
+  <div class="col no">
+    <h4>L'audit ne fait pas</h4>
+    <ul>
+      <li>Proposer la solution cible</li>
+      <li>Choisir une technologie</li>
+      <li>Chiffrer la refonte</li>
+      <li>Lister tout ce qui déplaît</li>
+      <li>Juger ceux qui ont écrit le code</li>
+    </ul>
+  </div>
+</div>
+
+<div class="rule">
+  <span class="lbl">La règle qui structure tout</span>
+  <p>
+    Qualifier les problèmes assez précisément pour que la solution devienne évidente —
+    <b>sans jamais l'écrire</b>. « Le service ne peut pas être répliqué » est un constat.
+    « Il faut passer aux jetons JWT » est une décision qui ne vous appartient pas.
+  </p>
+</div>
+
+<h2 data-n="2">Trier les signaux avant de commencer</h2>
+
+<p>
+  Le commanditaire donne des symptômes. Ils ne sont jamais de même nature, et cette distinction
+  détermine votre méthode de travail.
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:16%">Nature</th><th style="width:26%">Exemple</th><th style="width:29%">Votre méthode</th><th>Le risque</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Constaté</b></td>
+      <td>« C'est lent », « c'est dur à maintenir »</td>
+      <td>Vous <b>remontez</b> du symptôme vers sa cause dans le code</td>
+      <td>Décrire sans expliquer pourquoi</td>
+    </tr>
+    <tr>
+      <td><b>Anticipé</b></td>
+      <td>« Et si on double le trafic ? »</td>
+      <td>Rien n'est observable. Vous <b>descendez</b> de l'architecture vers un scénario</td>
+      <td>Affirmer sans démontrer</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="rule">
+  <span class="lbl">Pour tout risque anticipé : écrivez un scénario</span>
+  <p>
+    C'est ce qui transforme une inquiétude en risque argumenté. Nommez le moment, la charge,
+    l'utilisateur, et déroulez ce que fait le code. <i>« Un vendredi de pic, LiVrai ajoute deux
+    serveurs. Une gestionnaire se connecte sur le serveur 1, sa requête suivante part sur le
+    serveur 3, qui ne connaît pas sa session : elle est déconnectée en pleine saisie. »</i>
+    Personne ne débloque un budget sur une opinion.
+  </p>
+</div>
+
+<h2 data-n="3">Le déroulé en six temps</h2>
+
+<ol class="steps">
+  <li><b>Cadrer</b>Reformulez le besoin avec vos mots. Écrivez noir sur blanc ce qui est <b>hors périmètre</b> et ce à quoi vous n'avez pas accès — c'est ce qui vous protège en soutenance.</li>
+  <li><b>Explorer le fonctionnel</b>Qui sont les utilisateurs, que peuvent-ils faire. Restez au niveau des fonctionnalités, jamais des clics.</li>
+  <li><b>Lancer l'application</b>Le point que tout le monde saute. Voir <span class="pill">section 4</span>.</li>
+  <li><b>Analyser l'architecture</b>Couches, technologies, versions. Rapportez le réel au modèle attendu : ce qui manque est souvent plus parlant que ce qui est là.</li>
+  <li><b>Mesurer</b>Une seule mesure vaut dix paragraphes. Voir <span class="pill">section 5</span>.</li>
+  <li><b>Hiérarchiser et conclure</b>Reprenez chaque signal initial : confirmé ou non, et par quel mécanisme. Le commanditaire doit retrouver ses mots dans votre conclusion.</li>
+</ol>
+
+<h2 data-n="4">Lancez l'application. Toujours.</h2>
+
+<p>
+  Lire le code donne des hypothèses. L'exécuter donne des <b>preuves</b>. Sur l'audit dont ce
+  document est tiré, faire tourner l'application a changé la nature de la moitié des constats.
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:34%">Hypothèse issue du code</th><th>Ce que l'exécution a produit</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>« Le bouton Refuser pointe vers la mauvaise route »</td>
+      <td><b><code>HTTP 405 Method Not Allowed</code></b>, statut inchangé en base. Le refus d'une commande était <b>impossible en production</b>.</td>
+    </tr>
+    <tr>
+      <td>« Cette page ne vérifie pas le rôle »</td>
+      <td>Un compte client a listé <b>tous les clients avec leurs emails</b> et <b>créé un utilisateur</b>. Fuite de données démontrée.</td>
+    </tr>
+    <tr>
+      <td>« Il n'y a pas de validation des entrées »</td>
+      <td>Volume <code>-99</code> accepté et stocké. Volume <code>abc</code> → <b><code>HTTP 500</code></b> exposé à l'utilisateur.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Une capture d'écran vaut aussi un paragraphe : sur cet audit, un seul écran montrait
+  simultanément trois anomalies distinctes.
+</p>
+
+<h2 data-n="5">Cherchez le chiffre qui ferme le débat</h2>
+
+<p>
+  Un audit contient beaucoup de qualitatif. Une seule mesure bien choisie le change de statut.
+  Cherchez le <b>rapport entre deux limites de configuration</b> : c'est là que se cachent les
+  seuils de rupture.
+</p>
+
+<div class="rule">
+  <span class="lbl">Exemple réel — la mesure qui a porté l'audit</span>
+  <p>
+    <code>maxThreads = 150</code> côté serveur d'application, <code>max_connections = 151</code>
+    côté base. Chaque thread retenant sa connexion sans jamais la fermer :
+    <b>150 connexions possibles pour 151 autorisées, soit une marge d'une seule connexion.</b>
+    La panne survient donc <i>avant</i> toute limite de processeur ou de mémoire — ce qui la
+    rend invisible à la supervision habituelle.
+  </p>
+</div>
+
+<h3>Ce qui se mesure vite, et paie</h3>
+
+<ul>
+  <li><b>Connexions ouvertes à la base</b> (table des processus du SGBD) → fuite de ressources et plafond réel</li>
+  <li><b>Poids d'une page à volume réaliste</b> (injecter N lignes, mesurer) → dégradation par la volumétrie</li>
+  <li><b>Limites de configuration</b> (fichiers de conf, variables du SGBD) → seuils de saturation calculables</li>
+  <li><b>Mémoire sous charge concurrente</b> (N requêtes en parallèle) → marge avant épuisement</li>
+</ul>
+
+<div class="rule">
+  <span class="lbl">Comparez toujours à un point de référence</span>
+  <p>
+    « 15,6 Mo » ne dit rien seul. « 15,6 Mo pour 20 000 livraisons, contre 3 Ko pour 4 » montre
+    une progression linéaire sans plafond. C'est la comparaison qui fait la démonstration.
+  </p>
+</div>
+
+<h2 data-n="6">Les cinq pièges</h2>
+
+<table>
+  <thead><tr><th style="width:26%">Piège</th><th style="width:37%">Ce que ça donne</th><th>Le réflexe</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>Écrire la refonte</b></td>
+      <td>« Il faut migrer vers Spring Boot » dans un état des lieux</td>
+      <td>Décrire le mécanisme, laisser conclure</td>
+    </tr>
+    <tr>
+      <td><b>Tout mettre au même niveau</b></td>
+      <td>Un nommage discutable à côté de mots de passe en clair</td>
+      <td>Classer par impact métier, pas par gêne</td>
+    </tr>
+    <tr>
+      <td><b>Rester technique</b></td>
+      <td>« Requête non optimisée » — le commanditaire ne réagit pas</td>
+      <td>Traduire : « 3 s d'attente, 50 fois par jour »</td>
+    </tr>
+    <tr>
+      <td><b>Ne voir que le négatif</b></td>
+      <td>Un rapport à charge, que personne n'utilise</td>
+      <td>Nommer ce qui est sain : c'est ce qu'on garde</td>
+    </tr>
+    <tr>
+      <td><b>Affirmer sans vérifier</b></td>
+      <td>Un constat faux décrédibilise tout le reste</td>
+      <td>Voir ci-dessous</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="rule">
+  <span class="lbl">Le piège le plus coûteux — vécu sur cet audit</span>
+  <p>
+    Le schéma SQL ne déclarait aucun index : j'ai écrit « aucun index sur la table ». C'était
+    <b>faux</b>. Le SGBD crée automatiquement un index pour toute clé étrangère —
+    <code>SHOW INDEX</code> l'a montré. Le constat exact était plus fin : l'index existe sur la
+    clé étrangère, mais pas sur la colonne réellement utilisée pour trier.
+  </p>
+  <p style="margin-top:7px">
+    <b>La leçon :</b> ce que le code ne dit pas, l'infrastructure le fait peut-être pour lui.
+    Vérifiez sur le système qui tourne, pas sur le fichier qui le décrit. Un seul constat faux
+    fait douter de tous les autres.
+  </p>
+</div>
+
+<h2 data-n="7">Avant de rendre — sept contrôles</h2>
+
+<ul>
+  <li>Chaque signal du commanditaire est traité : <b>retrouve-t-il ses mots dans ma conclusion ?</b></li>
+  <li>Chaque constat est rattaché à une preuve : fichier, ligne, mesure ou capture</li>
+  <li>Aucune solution ne s'est glissée dans le texte : <b>ai-je écrit « il faut » quelque part ?</b></li>
+  <li>Les points forts sont nommés : qu'est-ce qui mérite d'être conservé ?</li>
+  <li>Les limites de l'audit sont écrites : ce que je n'ai pas pu vérifier est-il dit ?</li>
+  <li>Les références internes se résolvent : les renvois pointent-ils vers du réel ?</li>
+  <li>Les schémas ont une légende et se comprennent sans le texte</li>
+</ul>
+
+<div class="rule">
+  <span class="lbl">Distinguez trois natures de problèmes</span>
+  <p>
+    C'est ce qui rend un rapport actionnable. <b>Corrigeable tout de suite</b> (un bug en
+    production, indépendant de l'architecture) · <b>structurel</b> (découle de la conception,
+    ne se corrige pas ponctuellement) · <b>obsolescence</b> (impose une décision de
+    trajectoire). Les premiers ne doivent pas attendre la refonte — dites-le.
+  </p>
+</div>
+
+<div class="pb"></div>
+
+<h2 data-n="8">Les référentiels : ce qu'une architecte doit en savoir</h2>
+
+<p>
+  Personne ne vous demandera de réciter une norme. Ce qu'on attend de vous, c'est de
+  <b>savoir laquelle emprunter, pour quoi faire, et quand elle est hors sujet</b>. Un
+  référentiel cité à tort décrédibilise plus qu'il ne rassure.
+</p>
+
+<div class="rule">
+  <span class="lbl">Le réflexe</span>
+  <p>
+    Un référentiel sert à <b>structurer et faire dialoguer</b>, jamais à impressionner.
+    S'il n'apporte ni vocabulaire commun, ni ordre de travail, ni argument opposable — ne le
+    citez pas.
+  </p>
+</div>
+
+<h3>ISO/IEC 25010 — le vocabulaire de la qualité</h3>
+
+<p>
+  C'est la norme la plus directement utile en audit. Elle découpe la qualité d'un logiciel en
+  <b>huit caractéristiques</b>, ce qui vous donne une grille pour classer vos constats — et
+  surtout pour prouver que vous n'avez rien oublié.
+</p>
+
+<table>
+  <thead><tr><th style="width:27%">Caractéristique</th><th style="width:37%">La question qu'elle pose</th><th>Sur un audit type</th></tr></thead>
+  <tbody>
+    <tr><td><b>Performance</b></td><td>Temps de réponse, ressources, capacité</td><td>Poids de page, connexions, mémoire</td></tr>
+    <tr><td><b>Fiabilité</b></td><td>Disponibilité, tolérance aux pannes</td><td>Point de défaillance unique, réplication</td></tr>
+    <tr><td><b>Sécurité</b></td><td>Confidentialité, intégrité, traçabilité</td><td>Mots de passe, autorisation, secrets</td></tr>
+    <tr><td><b>Maintenabilité</b></td><td>Modularité, réutilisabilité, <b>testabilité</b></td><td>Couche métier absente, aucun test</td></tr>
+    <tr><td><b>Compatibilité</b></td><td>Interopérabilité, coexistence</td><td>Socle en fin de vie, API absente</td></tr>
+    <tr><td><b>Utilisabilité</b></td><td>Apprentissage, protection contre l'erreur</td><td>Échecs silencieux, pas de retour visuel</td></tr>
+    <tr><td><b>Adéquation fonct.</b></td><td>Complétude, exactitude, pertinence</td><td>Fonction annoncée mais inopérante</td></tr>
+    <tr><td><b>Portabilité</b></td><td>Installation, adaptabilité, remplaçabilité</td><td>Secrets en dur, recompilation par environnement</td></tr>
+  </tbody>
+</table>
+
+<div class="rule">
+  <span class="lbl">Ce que ça change concrètement</span>
+  <p>
+    « C'est mal fait » n'est pas opposable. <b>« Défaut de maintenabilité — sous-caractéristique
+    testabilité »</b> l'est : c'est un manque nommé dans une norme internationale, que personne
+    ne peut réduire à votre opinion. La norme ne trouve rien à votre place ; elle rend vos
+    trouvailles discutables sur le fond plutôt que sur la forme.
+  </p>
+</div>
+
+<h3>TOGAF — un cadre d'entreprise, pas une méthode d'audit</h3>
+
+<p>
+  <b>Sachez ce que c'est pour savoir quand ne pas l'appliquer.</b> TOGAF est un cadre
+  d'architecture d'<i>entreprise</i> : il pilote la transformation d'un système d'information
+  entier, sur des mois, avec une gouvernance. Le dérouler intégralement pour une application de
+  quelques milliers de lignes est une erreur de proportion — et un jury le relèvera.
+</p>
+
+<p>
+  Son cœur est l'<b>ADM</b> (<i>Architecture Development Method</i>), un cycle en phases A à H.
+  Deux choses à en retenir :
+</p>
+
+<ul>
+  <li>
+    <b>La phase B décrit l'existant avant la cible.</b> TOGAF nomme <i>Baseline Architecture</i>
+    ce que vous produisez dans un audit, et <i>Target Architecture</i> ce qui vient après. Le
+    <b>Gap Analysis</b> est l'écart entre les deux. C'est exactement la frontière que vous devez
+    tenir : l'audit s'arrête à la baseline.
+  </li>
+  <li>
+    <b>Les quatre domaines</b> — métier, données, applicatif, technique — constituent une grille
+    de complétude utile même hors TOGAF : ai-je regardé les quatre, ou seulement le code ?
+  </li>
+</ul>
+
+<div class="rule">
+  <span class="lbl">La phrase juste en soutenance</span>
+  <p>
+    « Cet audit correspond à la phase B de l'ADM : il établit la <i>baseline</i>. Le
+    <i>gap analysis</i> et la cible relèvent de l'étape suivante. » Vous montrez que vous
+    situez votre travail dans un cadre reconnu <b>sans prétendre l'avoir appliqué</b>.
+  </p>
+</div>
+
+<h3>Les autres à connaître de nom</h3>
+
+<ul>
+  <li><b>ISO/IEC/IEEE 42010</b> — une architecture se décrit par <i>points de vue</i>, chacun répondant aux préoccupations d'une <i>partie prenante</i>. Justifie qu'un rapport comporte plusieurs vues plutôt qu'une seule.</li>
+  <li><b>Modèle 4+1</b> <span class="pill">Kruchten</span> — logique, processus, développement, physique, reliés par des cas d'usage. Aide à voir quel schéma manque.</li>
+  <li><b>C4</b> <span class="pill">Brown</span> — contexte → conteneurs → composants → code. Plus léger qu'UML quand le lecteur n'est pas technicien.</li>
+  <li><b>ISO/IEC 27001</b> — management de la sécurité de l'information. Dès que l'audit touche des données personnelles ou le RGPD.</li>
+  <li><b>ADR</b> — un fichier court par décision : contexte, choix, conséquences. <b>La pratique la plus rentable du lot</b> : tracer le <i>pourquoi</i>, pas seulement le <i>quoi</i>.</li>
+</ul>
+
+<h3>Trois réflexes qui valent plus que les normes</h3>
+
+<ol class="steps">
+  <li><b>Tout choix a un coût</b>Une architecture n'est jamais « bonne » dans l'absolu : elle arbitre entre des qualités qui s'opposent — sécurité contre simplicité, performance contre maintenabilité, découplage contre nombre de fichiers. Nommez le prix de ce que vous préconisez, sinon vous vendez du rêve.</li>
+  <li><b>Le contexte prime sur la règle</b>Le même pattern est excellent à 100 utilisateurs et absurde à 3. Un référentiel appliqué sans être confronté à la taille du système, au budget et à la maturité de l'équipe produit de la sur-ingénierie — et TOGAF sur un CRM de treize classes en est l'exemple type.</li>
+  <li><b>Écrivez pour celui qui décide</b>Votre rapport est lu par quelqu'un qui engage de l'argent, pas par un pair. Traduisez systématiquement le technique en conséquence métier. C'est là que se joue votre crédibilité, bien plus que dans les normes citées.</li>
+</ol>
+
+<footer class="end">
+  Aide-mémoire tiré d'un audit d'application Java/JSP legacy conduit en septembre 2026.
+  Les exemples chiffrés proviennent de cet audit. À relire avant le prochain.
+</footer>
+
+</div>
+
+</body>
+</html>

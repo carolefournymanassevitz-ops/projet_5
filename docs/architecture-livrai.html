@@ -1,0 +1,2346 @@
+<title>Architecture CRM LiVrai</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --ink: #1c1b1a;
+    --ink-soft: #55524e;
+    --ink-faint: #86817b;
+    --line: #e3ded7;
+    --line-soft: #efebe5;
+    --accent: #6b4ee6;
+    --accent-soft: #f0ecfd;
+    --ok: #1f7a4d;
+    --ok-bg: #e8f5ee;
+    --warn: #9a6212;
+    --warn-bg: #fdf2e0;
+    --crit: #b3261e;
+    --crit-bg: #fceceb;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+  :root:not([data-theme="light"]) { color-scheme: light; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16151a; --surface: #1e1d24; --ink: #ece9e4; --ink-soft: #b3ada3;
+      --ink-faint: #857f78; --line: #33313a; --line-soft: #2a2830;
+      --accent: #a794ff; --accent-soft: #272338; --ok: #6cd39a; --ok-bg: #17301f;
+      --warn: #e0aa5a; --warn-bg: #332612; --crit: #f0837c; --crit-bg: #351c1c;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16151a; --surface: #1e1d24; --ink: #ece9e4; --ink-soft: #b3ada3;
+    --ink-faint: #857f78; --line: #33313a; --line-soft: #2a2830;
+    --accent: #a794ff; --accent-soft: #272338; --ok: #6cd39a; --ok-bg: #17301f;
+    --warn: #e0aa5a; --warn-bg: #332612; --crit: #f0837c; --crit-bg: #351c1c;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 17px; line-height: 1.65; margin: 0;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 28px 120px; }
+
+  .cover { padding: 88px 0 40px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 20px;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 5.5vw, 3.3rem); line-height: 1.08;
+    letter-spacing: -.022em; margin: 0 0 18px; font-weight: 600;
+  }
+  .standfirst { font-size: 1.18rem; color: var(--ink-soft); max-width: 60ch; margin: 0 0 32px; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 28px;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-faint);
+  }
+  .meta b { color: var(--ink-soft); font-weight: 500; }
+
+  h2 {
+    font-size: 1.65rem; letter-spacing: -.015em; margin: 64px 0 6px;
+    font-weight: 600; scroll-margin-top: 20px;
+  }
+  h2 .num {
+    font-family: var(--mono); font-size: .72rem; color: var(--accent);
+    display: block; letter-spacing: .12em; margin-bottom: 8px; font-weight: 400;
+  }
+  h3 { font-size: 1.12rem; margin: 36px 0 10px; font-weight: 600; letter-spacing: -.008em; }
+  h4 {
+    font-size: .82rem; font-family: var(--mono); text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-faint); margin: 28px 0 10px; font-weight: 500;
+  }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 7px; }
+  code {
+    font-family: var(--mono); font-size: .85em; background: var(--line-soft);
+    padding: .12em .38em; border-radius: 4px;
+  }
+  strong { font-weight: 600; }
+  a { color: var(--accent); }
+
+  .lead {
+    font-size: 1.06rem; color: var(--ink-soft); border-left: 2px solid var(--accent);
+    padding-left: 20px; margin: 0 0 28px;
+  }
+
+  /* ---- Sommaire ---- */
+  .toc {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 24px 28px; margin: 32px 0 8px;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px;
+  }
+  .toc h4 { margin: 0 0 14px; }
+  .toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+  .toc > ol > li {
+    counter-increment: toc; padding-left: 30px; position: relative; margin-bottom: 9px;
+  }
+  .toc > ol > li::before {
+    content: counter(toc) "."; position: absolute; left: 0;
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+  }
+  .toc a { text-decoration: none; color: var(--ink); }
+  .toc a:hover { color: var(--accent); }
+  .toc ul { list-style: none; padding: 6px 0 0; margin: 0; }
+  .toc ul li { margin-bottom: 4px; font-size: 13px; color: var(--ink-faint); }
+  .toc ul a { color: var(--ink-soft); }
+
+  .tw { overflow-x: auto; margin: 20px 0 24px; }
+  table {
+    border-collapse: collapse; width: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 14px; min-width: 480px;
+  }
+  th {
+    text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--ink-faint);
+    border-bottom: 1px solid var(--line); padding: 0 14px 8px 0;
+  }
+  td {
+    padding: 11px 14px 11px 0; border-bottom: 1px solid var(--line-soft);
+    vertical-align: top; line-height: 1.5;
+  }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: .84em; }
+
+  .b {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px;
+    border-radius: 4px; white-space: nowrap; font-weight: 500;
+  }
+  .b-crit { background: var(--crit-bg); color: var(--crit); }
+  .b-warn { background: var(--warn-bg); color: var(--warn); }
+  .b-ok   { background: var(--ok-bg); color: var(--ok); }
+  .b-new  { background: var(--accent-soft); color: var(--accent); }
+
+  .box {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px 24px; margin: 24px 0;
+  }
+  .box.crit { border-left: 3px solid var(--crit); }
+  .box.warn { border-left: 3px solid var(--warn); }
+  .box.info { border-left: 3px solid var(--accent); }
+  .box.ok   { border-left: 3px solid var(--ok); }
+  .box h4 { margin-top: 0; }
+  .box > *:last-child { margin-bottom: 0; }
+
+  /* ---- Décisions d'architecture ---- */
+  .adr {
+    border-top: 1px solid var(--line); padding: 22px 0 4px;
+  }
+  .adr-head {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .adr-id { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+  .adr-title { font-weight: 600; font-size: 1.05rem; }
+  .adr dl { margin: 12px 0 0; font-size: .95rem; }
+  .adr dt {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--ink-faint); margin-top: 12px;
+  }
+  .adr dd { margin: 3px 0 0; color: var(--ink-soft); }
+
+  figure {
+    margin: 28px 0; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 26px 20px 18px;
+  }
+  figure .dw { overflow-x: auto; }
+  figure svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  figcaption {
+    font-size: 12.5px; color: var(--ink-faint); text-align: center;
+    margin-top: 18px; font-family: system-ui, sans-serif; line-height: 1.5;
+  }
+  .uml-box { fill: var(--surface); stroke: var(--ink-soft); stroke-width: 1.3; }
+  .uml-hdr { fill: var(--accent-soft); stroke: var(--ink-soft); stroke-width: 1.3; }
+  .uml-t { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; fill: var(--ink); }
+  .uml-t.name { font-weight: 700; font-size: 12.5px; }
+  .uml-t.small { font-size: 10.5px; fill: var(--ink-soft); }
+  .uml-t.tiny { font-size: 9.5px; fill: var(--ink-faint); }
+  .uml-t.stereo { font-size: 10px; fill: var(--ink-faint); font-style: italic; }
+  .uml-l { stroke: var(--ink-soft); stroke-width: 1.3; fill: none; }
+  .uml-l.dash { stroke-dasharray: 5 3; }
+  .uml-fill { fill: var(--ink-soft); }
+  .grp { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 4 3; }
+
+  .kpi {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden; margin: 28px 0;
+  }
+  .kpi div { background: var(--surface); padding: 16px 18px; }
+  .kpi .v { font-size: 1.5rem; font-weight: 600; letter-spacing: -.02em; font-family: system-ui, sans-serif; }
+  .kpi .k {
+    font-size: 11px; font-family: var(--mono); text-transform: uppercase;
+    letter-spacing: .06em; color: var(--ink-faint); margin-top: 3px;
+  }
+  hr { border: none; border-top: 1px solid var(--line); margin: 56px 0; }
+  .footnote {
+    font-size: 13px; color: var(--ink-faint); font-family: system-ui, sans-serif;
+    border-top: 1px solid var(--line); padding-top: 20px; margin-top: 60px;
+  }
+  pre {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 16px 18px; overflow-x: auto; font-family: var(--mono);
+    font-size: 12.5px; line-height: 1.55; margin: 18px 0;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  @media print {
+    body { background: #fff; font-size: 11pt; }
+    .wrap { max-width: 100%; padding: 0; }
+    h2 { page-break-after: avoid; margin-top: 32px; }
+    figure, .box, .adr { page-break-inside: avoid; }
+    .cover { padding-top: 0; }
+    .toc { page-break-after: always; }
+  }
+</style>
+
+<div class="wrap">
+
+<header class="cover">
+  <div class="eyebrow">Document d'architecture</div>
+  <h1>CRM LiVrai — architecture cible</h1>
+  <p class="standfirst">
+    Conception de la refonte du CRM de gestion des livraisons : objectifs, périmètre
+    fonctionnel, architecture applicative et opérationnelle, modèle de données.
+  </p>
+  <div class="meta">
+    <span><b>Commanditaire</b> Meilin, chef de projet</span>
+    <span><b>Fait suite à</b> Audit du CRM existant</span>
+    <span><b>Statut</b> Pour validation</span>
+    <span><b>Date</b> Septembre 2026</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h4>Sommaire</h4>
+  <ol>
+    <li><a href="#ctx">Contexte du projet</a>
+      <ul>
+        <li><a href="#ctx-besoins">a. Besoins de LiVrai</a></li>
+        <li><a href="#ctx-objectifs">b. Objectifs de refonte</a></li>
+        <li><a href="#ctx-hors">c. Éléments hors périmètre</a></li>
+      </ul>
+    </li>
+    <li><a href="#fonc">Description fonctionnelle</a>
+      <ul>
+        <li><a href="#fonc-liste">a. Liste des fonctionnalités</a></li>
+        <li><a href="#fonc-uml">b. Fonctionnement de l'application</a></li>
+      </ul>
+    </li>
+    <li><a href="#tech">Description technique</a>
+      <ul>
+        <li><a href="#tech-stack">a. Technologies retenues</a></li>
+        <li><a href="#tech-applicative">b. Architecture applicative</a></li>
+        <li><a href="#tech-back">c. Organisation du back-end</a></li>
+        <li><a href="#tech-front">d. Organisation du front-end</a></li>
+        <li><a href="#tech-api">e. Communication front / back</a></li>
+        <li><a href="#tech-ope">f. Architecture opérationnelle</a></li>
+        <li><a href="#tech-obs">g. Télémétrie et supervision</a></li>
+      </ul>
+    </li>
+    <li><a href="#data">Modèle de données</a></li>
+    <li><a href="#nfr">Réponse aux contraintes non fonctionnelles</a></li>
+    <li><a href="#adr">Décisions d'architecture</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ 1. CONTEXTE -->
+<h2 id="ctx"><span class="num">01</span>Contexte du projet</h2>
+
+<p class="lead">
+  LiVrai exploite depuis plusieurs années une application de gestion des livraisons
+  devenue le point de passage obligé de son activité commerciale. L'audit conduit en
+  amont a établi que cette application ne peut pas absorber la croissance de
+  l'entreprise. Le présent document conçoit ce qui la remplace.
+</p>
+
+<h3 id="ctx-besoins">a. Besoins de LiVrai</h3>
+
+<p>
+  LiVrai est une société de <b>150 employés</b> proposant un service de livraison de
+  marchandises en grande quantité pour les professionnels. Son CRM interne gère le
+  cycle de vie des commandes de livraison, de la prise de commande à la facturation.
+</p>
+
+<h4>Le besoin métier : rendre les clients autonomes</h4>
+
+<p>
+  Aujourd'hui, <b>chaque nouveau client passe par le service commercial</b> : c'est lui
+  qui établit le contrat, crée le compte dans l'application, puis réserve les livraisons
+  pour le compte du client. Ce fonctionnement a tenu tant que le portefeuille restait
+  modeste. Avec la croissance de l'activité, il fait du service commercial un
+  <b>goulot d'étranglement</b> : toute commande, même répétitive, mobilise un
+  collaborateur interne.
+</p>
+
+<p>
+  Le besoin exprimé est donc un changement de modèle opératoire : <b>les clients doivent
+  pouvoir créer leur compte et commander leurs livraisons eux-mêmes</b>. Le service
+  commercial conserve la main sur les comptes qu'il gère déjà — la fiche de mission
+  précise que <i>certains clients continueront à être gérés par le service commercial</i>.
+  Les deux voies coexistent, elles ne se remplacent pas.
+</p>
+
+<div class="box info">
+  <h4>Ce que ce besoin implique pour l'architecture</h4>
+  <p>
+    Une application jusqu'ici réservée à un usage interne s'ouvre à des utilisateurs
+    externes qui s'inscrivent eux-mêmes. Trois conséquences directes : le modèle
+    d'autorisation doit être explicite et vérifié côté serveur, l'interface doit être
+    utilisable sans formation, et la charge devient subie plutôt que maîtrisée — elle
+    ne dépend plus du nombre d'employés mais du nombre de clients.
+  </p>
+</div>
+
+<h4>Le besoin technique : ce que l'audit a établi</h4>
+
+<p>
+  L'audit a qualifié trois signaux exprimés par les équipes. Tous trois sont confirmés,
+  et chacun a un mécanisme identifié :
+</p>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:22%">Signal</th><th style="width:14%">Verdict</th><th>Mécanisme établi par l'audit</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Lenteurs</b></td>
+      <td><span class="b b-crit">Confirmé</span></td>
+      <td>Connexions à la base ouvertes sans pool et jamais fermées (D-03) · chargement intégral des tables sans <code>LIMIT</code> — <b>15,6 Mo mesurés pour 20 004 livraisons</b> (D-04) · rechargement complet de la page à chaque interaction (UX-01).</td>
+    </tr>
+    <tr>
+      <td><b>Maintenance difficile</b></td>
+      <td><span class="b b-crit">Confirmé</span></td>
+      <td>Logique métier enfermée dans les servlets (D-01) · aucun test et code non testable (D-07) · socle sans support (D-11).</td>
+    </tr>
+    <tr>
+      <td><b>Disponibilité en pic</b></td>
+      <td><span class="b b-crit">Risque avéré</span></td>
+      <td>Session en mémoire interdisant la réplication (D-02) · saturation calculée à <b>150 connexions possibles pour 151 autorisées</b> (D-03).</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  À ces trois signaux s'ajoutent des constats de sécurité que l'audit a vérifiés sur
+  l'application en fonctionnement : <b>mots de passe stockés en clair</b> (D-05),
+  <b>secrets de connexion versionnés dans le dépôt</b> (D-06), et une
+  <b>fuite de données démontrée</b> — un compte client a pu lister l'ensemble des
+  clients de LiVrai avec leurs adresses électroniques, et créer un utilisateur (D-09).
+</p>
+
+<h4>Ce qui est conservé de l'existant</h4>
+
+<p>
+  Une refonte n'est pas une table rase. L'audit a identifié des acquis qui sont repris
+  explicitement dans la cible :
+</p>
+
+<ul>
+  <li><b>Le périmètre fonctionnel</b> (F-06) — il correspond au métier, il est stable et
+      compris des équipes. Il est étendu, non redéfini.</li>
+  <li><b>Le modèle de données</b> (F-03) — normalisé, intégrité référentielle déclarée,
+      <code>DECIMAL</code> pour les montants. Il constitue le socle du modèle cible,
+      corrigé sur les points que l'audit a relevés.</li>
+  <li><b>Les requêtes paramétrées</b> (F-02) et <b>l'échappement systématique dans les
+      vues</b> (F-04) — deux classes de vulnérabilité déjà écartées. La cible doit
+      garantir ces propriétés <i>par construction</i>, non par vigilance.</li>
+  <li><b>La sécurité par défaut sur le routage</b> (F-05) — toute route nouvelle est
+      protégée sauf mention contraire. Ce principe est conservé et généralisé à
+      l'autorisation.</li>
+</ul>
+
+<h3 id="ctx-objectifs">b. Objectifs de refonte</h3>
+
+<p>
+  Les objectifs ci-dessous ne sont pas des intentions générales : chacun descend d'un
+  constat mesuré de l'audit et se traduit par une décision d'architecture vérifiable.
+</p>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr>
+      <th style="width:18%">Objectif</th>
+      <th style="width:30%">Cause — constat d'audit</th>
+      <th>Réponse dans l'architecture cible</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Disponibilité</b><br><span class="b b-crit">Priorité 1</span></td>
+      <td>
+        <b>D-02</b> — l'état d'authentification réside dans la <code>HttpSession</code>,
+        donc en mémoire d'une instance. Ajouter un serveur déconnecte l'utilisateur
+        en pleine saisie. Instance unique = point de défaillance unique.
+      </td>
+      <td>
+        Back-end <b>sans état</b> : authentification par jeton JWT vérifié à chaque
+        requête, aucune session serveur. Plusieurs instances deviennent
+        interchangeables, la réplication horizontale devient possible
+        (<a href="#adr-03">ADR-03</a>).
+      </td>
+    </tr>
+    <tr>
+      <td><b>Disponibilité</b></td>
+      <td>
+        <b>D-03</b> — connexion conservée en champ d'instance, jamais fermée, aucun
+        pool. Mesure : <b>60 connexions dormantes</b> après une session de test ;
+        saturation calculée à <b>150 pour 151 autorisées</b>.
+      </td>
+      <td>
+        Pool de connexions HikariCP dimensionné et borné, transactions délimitées
+        par <code>@Transactional</code>, connexions restituées systématiquement.
+        Le plafond devient un paramètre d'exploitation, non un accident
+        (<a href="#adr-05">ADR-05</a>).
+      </td>
+    </tr>
+    <tr>
+      <td><b>Performance</b><br><span class="b b-crit">Priorité 1</span></td>
+      <td>
+        <b>D-04 / UX-04</b> — <code>getAllDeliveries()</code> sans <code>LIMIT</code> :
+        <b>15,6 Mo et 20 006 lignes</b> pour 20 004 livraisons, contre 3 Ko pour 4.
+        Dégradation linéaire sans palier, aucun index sur <code>status</code>.
+      </td>
+      <td>
+        <b>Pagination obligatoire</b> sur toute collection exposée par l'API, filtrage
+        et tri exécutés en SQL, index portant sur les colonnes réellement utilisées.
+        Le coût d'un écran devient indépendant de l'historique
+        (<a href="#adr-06">ADR-06</a>).
+      </td>
+    </tr>
+    <tr>
+      <td><b>Performance</b></td>
+      <td>
+        <b>UX-01 / UX-02</b> — chaque action recharge la page entière ; l'administrateur
+        perd sa position dans le tableau. Aucun retour visuel, d'où des double-clics
+        et un risque de traitement en double.
+      </td>
+      <td>
+        Application monopage Angular : seules les données changent, pas la page.
+        États de chargement explicites et boutons neutralisés pendant l'appel
+        (<a href="#adr-02">ADR-02</a>).
+      </td>
+    </tr>
+    <tr>
+      <td><b>Maintenabilité</b><br><span class="b b-crit">Priorité 1</span></td>
+      <td>
+        <b>D-01</b> — la logique métier vit dans les servlets : tri des livraisons,
+        règle de visibilité, résolution des noms. <b>D-07</b> — aucun test, et un code
+        non testable (DAO instanciés par <code>new</code>, aucune interface).
+      </td>
+      <td>
+        Architecture en couches stricte avec une <b>couche service</b> qui porte les
+        règles métier, indépendante de HTTP et donc testable. Injection de dépendances
+        native à Spring (<a href="#adr-04">ADR-04</a>).
+      </td>
+    </tr>
+    <tr>
+      <td><b>Évolutivité</b></td>
+      <td>
+        <b>D-11</b> — Java 1.6, <code>javax.servlet</code> 3.0, Tomcat 8.5 en fin de
+        support. L'écosystème ayant migré vers <code>jakarta</code>, les bibliothèques
+        récentes sont inaccessibles. Recrutement difficile.
+      </td>
+      <td>
+        Socle supporté : Java 25 LTS, Spring Boot 4.1, Angular 22. <b>API REST</b>
+        exposée, réutilisable par une application mobile ou une intégration client
+        sans réécrire les règles métier (<a href="#adr-01">ADR-01</a>).
+      </td>
+    </tr>
+    <tr>
+      <td><b>Sécurité</b><br><span class="b b-crit">Transverse</span></td>
+      <td>
+        <b>D-05</b> mots de passe en clair, vérifiés en base · <b>D-06</b> secrets dans
+        le code versionné · <b>D-09</b> fuite de données démontrée sur
+        <code>/clients</code> · <b>D-10</b> volume <code>-99</code> accepté et facturable.
+      </td>
+      <td>
+        Hachage BCrypt, secrets injectés par l'environnement, <b>autorisation centralisée</b>
+        et refus par défaut, validation déclarative des entrées aux frontières
+        (<a href="#adr-07">ADR-07</a>).
+      </td>
+    </tr>
+    <tr>
+      <td><b>Portabilité</b></td>
+      <td>
+        <b>D-06</b> — changer d'environnement impose de <b>recompiler</b>. La fiche
+        précise par ailleurs que <i>le choix de l'hébergeur n'est pas encore défini</i>.
+      </td>
+      <td>
+        Conteneurisation Docker de chaque composant, configuration entièrement externalisée.
+        L'application devient indépendante de son hébergeur
+        (<a href="#adr-08">ADR-08</a>).
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box ok">
+  <h4>Le critère de réussite de la refonte</h4>
+  <p>
+    Les trois risques déterminants de l'audit doivent être structurellement levés :
+    le service doit pouvoir être <b>répliqué</b> (D-02), la saturation des connexions
+    doit devenir un <b>paramètre maîtrisé</b> et non un seuil subi (D-03), et le coût
+    d'affichage d'un écran doit être <b>indépendant du volume de l'historique</b> (D-04).
+    Tout le reste en découle.
+  </p>
+</div>
+
+<h3 id="ctx-hors">c. Éléments hors périmètre</h3>
+
+<p>
+  Délimiter ce que le projet ne traite pas est une condition de sa réussite. Les
+  éléments ci-dessous sont écartés <b>volontairement</b>, avec leur justification.
+</p>
+
+<h4>Fonctionnalités non retenues</h4>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:30%">Élément</th><th style="width:22%">Nature</th><th>Justification</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Notifications et envoi de courriels</b></td>
+      <td><span class="b b-warn">Évolution possible</span></td>
+      <td>Absent de la fiche de mission. Nécessiterait un service d'envoi et une gestion des files d'attente. Le modèle de données prévoit toutefois la traçabilité nécessaire pour l'ajouter ultérieurement.</td>
+    </tr>
+    <tr>
+      <td><b>Réinitialisation de mot de passe en autonomie</b></td>
+      <td><span class="b b-warn">Évolution possible</span></td>
+      <td>Dépend de l'envoi de courriels. À la mise en service, la réinitialisation reste à la main de l'administration.</td>
+    </tr>
+    <tr>
+      <td><b>Export comptable et tableaux de bord</b></td>
+      <td><span class="b b-warn">Évolution possible</span></td>
+      <td>Non demandé. La facturation est gérée dans l'application, mais son intégration à un outil comptable tiers est un projet distinct.</td>
+    </tr>
+    <tr>
+      <td><b>Suivi géolocalisé des livraisons</b></td>
+      <td><span class="b b-warn">Hors sujet</span></td>
+      <td>Suppose une flotte équipée et une application chauffeur. Le CRM suit des statuts, non des positions.</td>
+    </tr>
+    <tr>
+      <td><b>Affectation nominative d'un client à un commercial</b></td>
+      <td><span class="b b-warn">Arbitrage assumé</span></td>
+      <td>Voir l'encadré ci-dessous.</td>
+    </tr>
+    <tr>
+      <td><b>Application mobile</b></td>
+      <td><span class="b b-ok">Rendue possible</span></td>
+      <td>Non développée, mais l'API REST est conçue pour qu'elle puisse l'être sans duplication de règles métier.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <h4>Arbitrage — « gérer certains clients »</h4>
+  <p>
+    La fiche de mission indique que le service commercial doit pouvoir
+    <i>« gérer certains clients »</i>. Lu strictement, cela suppose une affectation
+    nominative client&nbsp;→&nbsp;commercial, donc une table d'association, une règle
+    d'autorisation supplémentaire et un écran d'administration des portefeuilles.
+  </p>
+  <p>
+    <b>Décision : tout commercial accède à l'ensemble du portefeuille clients.</b>
+    LiVrai compte 150 employés, dont un service commercial de quelques personnes qui
+    travaillent déjà en commun. Introduire une cloison de confidentialité interne à
+    cette équipe reviendrait à payer une complexité permanente pour un problème que
+    l'organisation actuelle ne pose pas.
+  </p>
+  <p>
+    <b>Ce que cette décision coûte, et pourquoi elle reste réversible :</b> si LiVrai
+    structure demain une force de vente par secteur, l'affectation devra être ajoutée.
+    Comme la règle d'accès est portée par la couche service — et non dispersée dans les
+    contrôleurs, à la différence de l'application actuelle (D-09) — ce changement sera
+    localisé : ni le front-end, ni le modèle de rôles ne seront touchés.
+  </p>
+</div>
+
+<h4>Hors périmètre technique</h4>
+
+<ul>
+  <li>
+    <b>La reprise des données existantes.</b> Le passage de MySQL à PostgreSQL suppose
+    un chantier de migration à part entière : conversion des statuts français en
+    énumération, attribution d'un rôle à chaque compte, et surtout
+    <b>re-hachage impossible des mots de passe</b> — stockés en clair, ils ne peuvent
+    être migrés tels quels sans reconduire la faille D-05. Tous les utilisateurs devront
+    définir un nouveau mot de passe à la bascule. Ce chantier fait l'objet d'un
+    document distinct ; il est signalé ici parce qu'il conditionne le jour de la mise
+    en service.
+  </li>
+  <li>
+    <b>Le choix de l'hébergeur et le dimensionnement de production.</b> La fiche
+    indique que ce choix n'est pas arrêté. L'architecture est conçue pour être neutre
+    vis-à-vis de l'hébergeur — c'est précisément le rôle de la conteneurisation.
+  </li>
+  <li>
+    <b>Le test de charge de validation.</b> L'audit recommandait de confirmer le point
+    de rupture sur une copie représentative de la base. Cette campagne reste à mener
+    sur la cible avant mise en service.
+  </li>
+  <li>
+    <b>La correction de l'application existante.</b> L'audit a relevé deux défauts
+    actifs en production — le bouton « Refuser » inopérant (UX-06) et l'absence de
+    contrôle de rôle sur <code>/clients</code> (D-09). Leur correction ne dépend
+    d'aucune décision de refonte et <b>ne doit pas attendre ce projet</b>.
+  </li>
+</ul>
+
+<!-- ====================================================== 2. FONCTIONNEL -->
+<h2 id="fonc"><span class="num">02</span>Description fonctionnelle</h2>
+
+<p class="lead">
+  Le périmètre cible reprend le cycle de vie d'une commande de livraison en l'étendant
+  sur trois axes : l'autonomie du client, la gestion de la facturation, et la
+  traçabilité des actions.
+</p>
+
+<h3 id="fonc-liste">a. Liste des fonctionnalités</h3>
+
+<h4>Les quatre rôles</h4>
+
+<p>
+  L'application existante ne connaît que deux profils, distingués par un booléen
+  <code>admin</code> (D-09). La fiche de mission en impose <b>trois</b> ; un quatrième
+  est ajouté, et justifié ci-dessous.
+</p>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:20%">Rôle</th><th style="width:26%">Qui</th><th>Responsabilités</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>CLIENT</b><br><span class="b b-ok">Externe</span></td>
+      <td>Entreprise cliente de LiVrai</td>
+      <td>Créer son compte · gérer ses informations · commander une livraison · suivre ses livraisons · consulter son historique et ses factures</td>
+    </tr>
+    <tr>
+      <td><b>COMMERCIAL</b><br><span class="b b-warn">Interne</span></td>
+      <td>Service commercial</td>
+      <td>Créer et gérer les comptes clients · commander pour le compte d'un client · consulter toutes les livraisons · <b>gérer la facturation</b></td>
+    </tr>
+    <tr>
+      <td><b>EXPLOITATION</b><br><span class="b b-warn">Interne</span></td>
+      <td>Service livraisons</td>
+      <td>Accepter / refuser une commande · faire évoluer le statut d'une livraison · consulter toutes les livraisons · <b>accéder à la facturation</b></td>
+    </tr>
+    <tr>
+      <td><b>ADMIN</b><br><span class="b b-crit">Interne</span></td>
+      <td>Administration technique</td>
+      <td>Créer et désactiver les comptes internes · attribuer les rôles · consulter le journal des actions</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box info">
+  <h4>Pourquoi un quatrième rôle</h4>
+  <p>
+    La fiche décrit trois rôles <i>métier</i>. Mais quelqu'un doit pouvoir créer un
+    compte commercial et attribuer les rôles — et ce n'est ni un client, ni un opérateur
+    de livraisons, ni raisonnablement un commercial qui s'auto-promeut. Sans rôle
+    d'administration explicite, ce pouvoir existerait quand même, mais <b>implicitement</b>,
+    ce qui reproduirait exactement le défaut relevé par l'audit : des droits qui ne sont
+    définis nulle part et que l'on découvre en lisant le code.
+  </p>
+</div>
+
+<h4>Fonctionnalités par domaine</h4>
+
+<p>
+  <span class="b b-ok">Conservé</span> repris de l'existant ·
+  <span class="b b-warn">Adapté</span> existant, modifié ·
+  <span class="b b-new">Nouveau</span> ajouté au périmètre
+</p>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:28%">Fonctionnalité</th><th style="width:14%">Statut</th><th style="width:18%">Rôles</th><th>Origine et justification</th></tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="4"><b>Comptes et authentification</b></td></tr>
+    <tr>
+      <td>Connexion / déconnexion</td>
+      <td><span class="b b-warn">Adapté</span></td>
+      <td>Tous</td>
+      <td>Existant, mais par jeton JWT et non plus par session serveur (D-02). Message d'erreur explicite en cas d'échec (UX-03).</td>
+    </tr>
+    <tr>
+      <td><b>Inscription autonome du client</b></td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>CLIENT</td>
+      <td>Cœur du besoin métier : décharger le service commercial de la création des comptes.</td>
+    </tr>
+    <tr>
+      <td>Création d'un compte client par le commercial</td>
+      <td><span class="b b-ok">Conservé</span></td>
+      <td>COMMERCIAL</td>
+      <td>La fiche prévoit que certains clients restent gérés par le commercial. Les deux voies coexistent.</td>
+    </tr>
+    <tr>
+      <td>Gestion des comptes internes et des rôles</td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>ADMIN</td>
+      <td>Rendu nécessaire par le passage de deux à quatre rôles.</td>
+    </tr>
+
+    <tr><td colspan="4"><b>Clients</b></td></tr>
+    <tr>
+      <td>Consulter la liste des clients</td>
+      <td><span class="b b-warn">Adapté</span></td>
+      <td>COMMERCIAL, EXPLOITATION</td>
+      <td>Existant mais <b>accessible à tout utilisateur authentifié</b> — fuite de données démontrée (D-09). Désormais soumise au rôle.</td>
+    </tr>
+    <tr>
+      <td>Gérer les informations d'un client</td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>COMMERCIAL, CLIENT</td>
+      <td>Exigé par la fiche. Le client gère ses propres informations, le commercial celles de tous.</td>
+    </tr>
+
+    <tr><td colspan="4"><b>Livraisons</b></td></tr>
+    <tr>
+      <td>Commander une livraison</td>
+      <td><span class="b b-warn">Adapté</span></td>
+      <td>CLIENT, COMMERCIAL</td>
+      <td>Existant, enrichi des adresses d'enlèvement et de livraison et d'une date souhaitée. <b>Validation des saisies</b> : volume <code>-99</code> était accepté et facturable (D-10).</td>
+    </tr>
+    <tr>
+      <td>Consulter ses livraisons</td>
+      <td><span class="b b-warn">Adapté</span></td>
+      <td>CLIENT</td>
+      <td>Existant, désormais <b>paginé, filtrable et triable</b> (D-04, UX-04).</td>
+    </tr>
+    <tr>
+      <td>Consulter toutes les livraisons</td>
+      <td><span class="b b-warn">Adapté</span></td>
+      <td>COMMERCIAL, EXPLOITATION</td>
+      <td>Existant. Les intitulés d'écran sont adaptés au profil (UX-07).</td>
+    </tr>
+    <tr>
+      <td>Accepter / refuser une commande</td>
+      <td><span class="b b-warn">Adapté</span></td>
+      <td>EXPLOITATION</td>
+      <td>Existant, mais <b>le refus était impossible</b> : le formulaire postait vers une route ne traitant pas les écritures, d'où un <code>405</code> (UX-06).</td>
+    </tr>
+    <tr>
+      <td>Faire évoluer le statut d'une livraison</td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>EXPLOITATION</td>
+      <td>Le cycle existant s'arrêtait à « Acceptée » puis « Terminée ». Les états intermédiaires rendent le suivi exploitable.</td>
+    </tr>
+    <tr>
+      <td>Suivre l'avancement d'une livraison</td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>CLIENT</td>
+      <td>La fiche demande explicitement « commande <b>et suivi</b> des livraisons ».</td>
+    </tr>
+    <tr>
+      <td><b>Historique des livraisons</b></td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>Tous</td>
+      <td>Exigé par la fiche. L'audit relevait qu'aucune traçabilité n'existait — ni qui, ni quand.</td>
+    </tr>
+
+    <tr><td colspan="4"><b>Facturation</b></td></tr>
+    <tr>
+      <td><b>Gestion de la facturation</b></td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>COMMERCIAL, EXPLOITATION</td>
+      <td>Exigé par la fiche. L'existant se limitait à un champ prix sur la livraison, sans document ni cycle de vie.</td>
+    </tr>
+    <tr>
+      <td>Consulter ses factures</td>
+      <td><span class="b b-new">Nouveau</span></td>
+      <td>CLIENT</td>
+      <td>Corollaire de l'autonomie du client.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="kpi">
+  <div><div class="v">4</div><div class="k">rôles — contre 2</div></div>
+  <div><div class="v">8</div><div class="k">fonctions nouvelles</div></div>
+  <div><div class="v">7</div><div class="k">conservées ou adaptées</div></div>
+  <div><div class="v">0</div><div class="k">fonction supprimée</div></div>
+</div>
+
+<h3 id="fonc-uml">b. Fonctionnement de l'application</h3>
+
+<figure>
+<div class="dw">
+<svg viewBox="0 0 760 700" role="img" aria-label="Diagramme de cas d'utilisation UML de l'application cible">
+  <!-- Acteurs gauche -->
+  <g class="uml-l">
+    <circle cx="52" cy="120" r="12"/>
+    <line x1="52" y1="132" x2="52" y2="166"/>
+    <line x1="32" y1="145" x2="72" y2="145"/>
+    <line x1="52" y1="166" x2="36" y2="192"/>
+    <line x1="52" y1="166" x2="68" y2="192"/>
+  </g>
+  <text class="uml-t name" x="52" y="212" text-anchor="middle">Client</text>
+
+  <g class="uml-l">
+    <circle cx="52" cy="420" r="12"/>
+    <line x1="52" y1="432" x2="52" y2="466"/>
+    <line x1="32" y1="445" x2="72" y2="445"/>
+    <line x1="52" y1="466" x2="36" y2="492"/>
+    <line x1="52" y1="466" x2="68" y2="492"/>
+  </g>
+  <text class="uml-t name" x="52" y="512" text-anchor="middle">Commercial</text>
+
+  <!-- Acteurs droite -->
+  <g class="uml-l">
+    <circle cx="708" cy="230" r="12"/>
+    <line x1="708" y1="242" x2="708" y2="276"/>
+    <line x1="688" y1="255" x2="728" y2="255"/>
+    <line x1="708" y1="276" x2="692" y2="302"/>
+    <line x1="708" y1="276" x2="724" y2="302"/>
+  </g>
+  <text class="uml-t name" x="708" y="322" text-anchor="middle">Exploitation</text>
+
+  <g class="uml-l">
+    <circle cx="708" cy="540" r="12"/>
+    <line x1="708" y1="552" x2="708" y2="586"/>
+    <line x1="688" y1="565" x2="728" y2="565"/>
+    <line x1="708" y1="586" x2="692" y2="612"/>
+    <line x1="708" y1="586" x2="724" y2="612"/>
+  </g>
+  <text class="uml-t name" x="708" y="632" text-anchor="middle">Admin</text>
+
+  <!-- Frontière système -->
+  <rect class="grp" x="150" y="20" width="460" height="660" rx="6"/>
+  <text class="uml-t small" x="164" y="40">CRM LiVrai</text>
+
+  <!-- Cas d'utilisation -->
+  <ellipse class="uml-hdr" cx="380" cy="72" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="77" text-anchor="middle">S'authentifier</text>
+
+  <ellipse class="uml-box" cx="380" cy="128" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="133" text-anchor="middle">Créer son compte</text>
+
+  <ellipse class="uml-box" cx="380" cy="184" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="189" text-anchor="middle">Gérer ses informations</text>
+
+  <ellipse class="uml-box" cx="380" cy="240" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="245" text-anchor="middle">Commander une livraison</text>
+
+  <ellipse class="uml-box" cx="380" cy="296" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="301" text-anchor="middle">Suivre ses livraisons</text>
+
+  <ellipse class="uml-box" cx="380" cy="352" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="357" text-anchor="middle">Consulter l'historique</text>
+
+  <ellipse class="uml-box" cx="380" cy="408" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="413" text-anchor="middle">Gérer les clients</text>
+
+  <ellipse class="uml-box" cx="380" cy="464" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="469" text-anchor="middle">Traiter une commande</text>
+  <text class="uml-t tiny" x="380" y="481" text-anchor="middle">accepter / refuser</text>
+
+  <ellipse class="uml-box" cx="380" cy="528" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="533" text-anchor="middle">Faire évoluer le statut</text>
+
+  <ellipse class="uml-box" cx="380" cy="584" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="589" text-anchor="middle">Gérer la facturation</text>
+
+  <ellipse class="uml-box" cx="380" cy="644" rx="112" ry="22"/>
+  <text class="uml-t" x="380" y="649" text-anchor="middle">Gérer comptes et rôles</text>
+
+  <!-- Associations Client -->
+  <g class="uml-l">
+    <line x1="72" y1="132" x2="268" y2="128"/>
+    <line x1="72" y1="140" x2="268" y2="184"/>
+    <line x1="72" y1="148" x2="268" y2="240"/>
+    <line x1="72" y1="156" x2="268" y2="296"/>
+    <line x1="72" y1="164" x2="268" y2="352"/>
+  </g>
+
+  <!-- Associations Commercial -->
+  <g class="uml-l">
+    <line x1="72" y1="424" x2="268" y2="240"/>
+    <line x1="72" y1="430" x2="268" y2="352"/>
+    <line x1="72" y1="436" x2="268" y2="408"/>
+    <line x1="72" y1="444" x2="268" y2="584"/>
+  </g>
+
+  <!-- Associations Exploitation -->
+  <g class="uml-l">
+    <line x1="688" y1="236" x2="492" y2="352"/>
+    <line x1="688" y1="242" x2="492" y2="408"/>
+    <line x1="688" y1="248" x2="492" y2="464"/>
+    <line x1="688" y1="254" x2="492" y2="528"/>
+    <line x1="688" y1="260" x2="492" y2="584"/>
+  </g>
+
+  <!-- Associations Admin -->
+  <g class="uml-l">
+    <line x1="688" y1="546" x2="492" y2="644"/>
+  </g>
+
+  <!-- include vers authentification -->
+  <line x1="380" y1="106" x2="380" y2="94" class="uml-l dash"/>
+  <text class="uml-t tiny" x="392" y="104">«include» — tous les cas</text>
+</svg>
+</div>
+<figcaption>
+  Diagramme de cas d'utilisation UML de l'application cible. Quatre acteurs au lieu de
+  deux. Les cas « Créer son compte » (inscription autonome), « Suivre ses livraisons »,
+  « Gérer la facturation » et « Gérer comptes et rôles » sont nouveaux. Tous les cas
+  incluent l'authentification, à l'exception de la création de compte.
+</figcaption>
+</figure>
+
+<h4>Cycle de vie d'une livraison</h4>
+
+<p>
+  Le cycle existant comportait quatre états (<i>En attente</i>, <i>Acceptée</i>,
+  <i>Refusée</i>, <i>Terminée</i>) stockés en texte libre français (D-14). La cible le
+  précise et le formalise en énumération :
+</p>
+
+<figure>
+<div class="dw">
+<svg viewBox="0 0 720 240" role="img" aria-label="Diagramme d'états du cycle de vie d'une livraison">
+  <defs>
+    <marker id="arS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="uml-fill"/>
+    </marker>
+  </defs>
+
+  <circle cx="28" cy="96" r="8" class="uml-fill"/>
+  <line x1="36" y1="96" x2="62" y2="96" class="uml-l" marker-end="url(#arS)"/>
+
+  <rect class="uml-hdr" x="64" y="76" width="94" height="40" rx="8"/>
+  <text class="uml-t" x="111" y="101" text-anchor="middle">PENDING</text>
+
+  <line x1="158" y1="96" x2="196" y2="96" class="uml-l" marker-end="url(#arS)"/>
+  <text class="uml-t tiny" x="177" y="88" text-anchor="middle">accepter</text>
+
+  <rect class="uml-box" x="198" y="76" width="94" height="40" rx="8"/>
+  <text class="uml-t" x="245" y="101" text-anchor="middle">ACCEPTED</text>
+
+  <line x1="292" y1="96" x2="330" y2="96" class="uml-l" marker-end="url(#arS)"/>
+  <text class="uml-t tiny" x="311" y="88" text-anchor="middle">enlever</text>
+
+  <rect class="uml-box" x="332" y="76" width="98" height="40" rx="8"/>
+  <text class="uml-t" x="381" y="101" text-anchor="middle">IN_TRANSIT</text>
+
+  <line x1="430" y1="96" x2="468" y2="96" class="uml-l" marker-end="url(#arS)"/>
+  <text class="uml-t tiny" x="449" y="88" text-anchor="middle">livrer</text>
+
+  <rect class="uml-box" x="470" y="76" width="94" height="40" rx="8"/>
+  <text class="uml-t" x="517" y="101" text-anchor="middle">DELIVERED</text>
+
+  <line x1="564" y1="96" x2="600" y2="96" class="uml-l" marker-end="url(#arS)"/>
+  <text class="uml-t tiny" x="582" y="88" text-anchor="middle">facturer</text>
+
+  <rect class="uml-box" x="602" y="76" width="86" height="40" rx="8"/>
+  <text class="uml-t" x="645" y="101" text-anchor="middle">BILLED</text>
+
+  <circle cx="645" cy="150" r="9" class="uml-l"/>
+  <circle cx="645" cy="150" r="5" class="uml-fill"/>
+  <line x1="645" y1="116" x2="645" y2="141" class="uml-l" marker-end="url(#arS)"/>
+
+  <!-- refus -->
+  <path class="uml-l" d="M 111 116 L 111 186 L 240 186" marker-end="url(#arS)"/>
+  <text class="uml-t tiny" x="150" y="180">refuser</text>
+  <rect class="uml-box" x="242" y="166" width="94" height="40" rx="8"/>
+  <text class="uml-t" x="289" y="191" text-anchor="middle">REJECTED</text>
+
+  <!-- annulation -->
+  <path class="uml-l" d="M 90 76 L 90 30 L 400 30 L 400 56" marker-end="url(#arS)"/>
+  <text class="uml-t tiny" x="240" y="24" text-anchor="middle">annuler (client, avant acceptation)</text>
+  <rect class="uml-box" x="356" y="0" width="94" height="0" rx="8" style="fill:none;stroke:none"/>
+  <rect class="uml-box" x="356" y="0" width="0" height="0"/>
+  <text class="uml-t" x="400" y="52" text-anchor="middle">CANCELLED</text>
+</svg>
+</div>
+<figcaption>
+  Cycle de vie d'une livraison. Les états intermédiaires <code>IN_TRANSIT</code> et
+  <code>DELIVERED</code> sont nouveaux : ils rendent possible le suivi demandé par la
+  fiche. Chaque transition est journalisée (qui, quand, depuis quel état), ce qu'aucune
+  trace ne permettait auparavant.
+</figcaption>
+</figure>
+
+<!-- ======================================================== 3. TECHNIQUE -->
+<h2 id="tech"><span class="num">03</span>Description technique</h2>
+
+<p class="lead">
+  Application web à architecture trois tiers : une application monopage Angular, une API
+  REST Spring Boot sans état, une base PostgreSQL. Chaque composant est conteneurisé.
+</p>
+
+<h3 id="tech-stack">a. Technologies retenues</h3>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:20%">Composant</th><th style="width:20%">Technologie</th><th style="width:12%">Version</th><th>Justification</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Langage back-end</b></td>
+      <td>Java</td>
+      <td><code>25 LTS</code></td>
+      <td>Imposé par la fiche (« dernière version LTS »). Support jusqu'en septembre 2028 au minimum. Remplace Java 1.6, sans support depuis 2013 (D-11).</td>
+    </tr>
+    <tr>
+      <td><b>Framework back-end</b></td>
+      <td>Spring Boot</td>
+      <td><code>4.1.x</code></td>
+      <td>Apporte nativement ce que l'application écrivait à la main : injection de dépendances (D-07), gestion transactionnelle (D-12), sécurité centralisée (D-09), pool de connexions (D-03), configuration externalisée (D-06).</td>
+    </tr>
+    <tr>
+      <td><b>Accès aux données</b></td>
+      <td>Spring Data JPA / Hibernate</td>
+      <td><code>7.x</code></td>
+      <td>Requêtes paramétrées par construction — préserve F-02. Pagination native, qui est la réponse directe à D-04.</td>
+    </tr>
+    <tr>
+      <td><b>Pool de connexions</b></td>
+      <td>HikariCP</td>
+      <td><code>intégré</code></td>
+      <td>Réponse directe à D-03 : connexions bornées, restituées, avec délai d'attente maîtrisé.</td>
+    </tr>
+    <tr>
+      <td><b>Sécurité</b></td>
+      <td>Spring Security + JWT</td>
+      <td><code>7.x</code></td>
+      <td>Authentification sans état (D-02), autorisation déclarative et centralisée (D-09), hachage BCrypt (D-05).</td>
+    </tr>
+    <tr>
+      <td><b>Migrations de schéma</b></td>
+      <td>Flyway</td>
+      <td><code>11.x</code></td>
+      <td>Versionne l'évolution de la base. L'existant n'avait qu'un script d'initialisation, sans historique.</td>
+    </tr>
+    <tr>
+      <td><b>Front-end</b></td>
+      <td>Angular</td>
+      <td><code>22</code></td>
+      <td>Imposé par la fiche, qui justifie le choix d'une SPA par le besoin d'une « interface très interactive ». Réponse à UX-01.</td>
+    </tr>
+    <tr>
+      <td><b>État front-end</b></td>
+      <td>Signals Angular <span class="b b-ok">retenu</span><br>NgRx <span class="b b-warn">écarté</span></td>
+      <td><code>natif</code></td>
+      <td>Voir <a href="#adr-09">ADR-09</a>.</td>
+    </tr>
+    <tr>
+      <td><b>Base de données</b></td>
+      <td>PostgreSQL</td>
+      <td><code>18</code></td>
+      <td>Imposé par l'énoncé. Apporte les types énumérés (D-14), les contraintes <code>CHECK</code> (D-10) et les index partiels (D-04). Voir <a href="#adr-10">ADR-10</a>.</td>
+    </tr>
+    <tr>
+      <td><b>Conteneurisation</b></td>
+      <td>Docker / Docker Compose</td>
+      <td><code>27.x</code></td>
+      <td>Imposé par la fiche. Rend l'application indépendante de l'hébergeur, non encore choisi (D-06).</td>
+    </tr>
+    <tr>
+      <td><b>Tests</b></td>
+      <td>JUnit 5 · Mockito · Testcontainers · Jasmine</td>
+      <td>—</td>
+      <td>Réponse à D-07. Testcontainers permet de tester sur un vrai PostgreSQL plutôt que sur une base en mémoire au comportement différent.</td>
+    </tr>
+    <tr>
+      <td><b>Serveur web front</b></td>
+      <td>Nginx</td>
+      <td><code>1.27-alpine</code></td>
+      <td>Sert les fichiers statiques produits par la compilation Angular et relaie les appels API.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="tech-applicative">b. Architecture applicative</h3>
+
+<h4>Le choix de l'architecture : monolithe modulaire</h4>
+
+<p>
+  Avant de décrire l'organisation retenue, il faut justifier la famille d'architecture
+  choisie. Trois options étaient ouvertes :
+</p>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:20%">Architecture</th><th style="width:34%">Ce qu'elle apporterait à LiVrai</th><th>Ce qu'elle coûterait</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Monolithe en couches</b><br><span class="b b-ok">Retenu</span></td>
+      <td>Séparation nette des responsabilités, testabilité, déploiement simple, réplication horizontale possible dès lors que le service est sans état.</td>
+      <td>Une seule unité de déploiement : on ne peut pas dimensionner la facturation indépendamment des livraisons. Sans importance à cette échelle.</td>
+    </tr>
+    <tr>
+      <td><b>Microservices</b><br><span class="b b-crit">Écarté</span></td>
+      <td>Dimensionnement et déploiement indépendants par domaine.</td>
+      <td>Réseau entre services, cohérence distribuée, observabilité distribuée, orchestration. Pour un domaine de <b>six entités</b> et une équipe réduite, le coût dépasse largement le bénéfice — et LiVrai n'a aujourd'hui <b>aucune équipe de plateforme</b>.</td>
+    </tr>
+    <tr>
+      <td><b>Architecture hexagonale stricte</b><br><span class="b b-warn">Partiellement</span></td>
+      <td>Découplage total du domaine vis-à-vis des technologies.</td>
+      <td>Multiplication des interfaces et des objets de transposition. On en retient le principe directeur — le domaine ne dépend pas de l'infrastructure — sans la cérémonie complète.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box info">
+  <h4>Le raisonnement</h4>
+  <p>
+    L'audit a montré que le problème de LiVrai n'est pas la taille de son domaine
+    métier — treize classes, deux tables — mais <b>l'absence de séparation des
+    responsabilités</b> et <b>l'état conservé en mémoire</b>. Un monolithe correctement
+    découpé en couches et rendu sans état répond aux deux. Découper en microservices
+    ajouterait une complexité distribuée sans traiter aucun des trois risques
+    déterminants de l'audit.
+  </p>
+  <p>
+    Le monolithe retenu est cependant <b>modulaire</b> : le code est organisé par
+    domaine métier (<code>delivery</code>, <code>invoice</code>, <code>customer</code>,
+    <code>user</code>) et non par couche technique. Si un domaine devait un jour être
+    extrait, la frontière est déjà tracée.
+  </p>
+</div>
+
+<h4>Paradigme de programmation</h4>
+
+<p>
+  Le back-end suit un paradigme <b>orienté objet</b>, conformément à Java et à Spring,
+  avec deux inflexions délibérées :
+</p>
+
+<ul>
+  <li>
+    <b>Programmation par contrat et immuabilité aux frontières.</b> Les objets de
+    transfert (DTO) exposés par l'API sont des <code>record</code> immuables. Cela
+    supprime une classe entière de défauts — un objet modifié en cours de traitement —
+    et rend les données échangées prévisibles.
+  </li>
+  <li>
+    <b>Style fonctionnel à l'intérieur des services.</b> L'API Stream et
+    <code>Optional</code> remplacent les boucles et les tests de nullité qui
+    parsèment le code actuel. Ce n'est pas une préférence esthétique : le code existant
+    ne pouvait pas les utiliser, Java 1.6 étant antérieur à leur introduction (D-11).
+  </li>
+</ul>
+
+<p>
+  Le front-end suit un paradigme <b>réactif et déclaratif</b> : l'état est représenté par
+  des signaux, et l'interface se recalcule à partir de cet état. C'est ce qui remplace
+  le rechargement complet de page constaté en UX-01.
+</p>
+
+<h4>Vue d'ensemble</h4>
+
+<figure>
+<div class="dw">
+<svg viewBox="0 0 720 430" role="img" aria-label="Vue d'ensemble en trois tiers de l'architecture cible">
+  <defs>
+    <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="uml-fill"/>
+    </marker>
+  </defs>
+
+  <!-- Navigateur -->
+  <rect class="uml-box" x="40" y="40" width="150" height="66" rx="5"/>
+  <text class="uml-t stereo" x="115" y="62" text-anchor="middle">«device»</text>
+  <text class="uml-t name" x="115" y="80" text-anchor="middle">Navigateur</text>
+  <text class="uml-t tiny" x="115" y="96" text-anchor="middle">poste client / mobile</text>
+
+  <!-- Front -->
+  <rect class="uml-hdr" x="250" y="30" width="180" height="86" rx="5"/>
+  <text class="uml-t stereo" x="340" y="50" text-anchor="middle">«container» livrai-front</text>
+  <text class="uml-t name" x="340" y="70" text-anchor="middle">Angular 22 (SPA)</text>
+  <text class="uml-t tiny" x="340" y="87" text-anchor="middle">servie par Nginx</text>
+  <text class="uml-t tiny" x="340" y="102" text-anchor="middle">rendu et état côté navigateur</text>
+
+  <!-- Back -->
+  <rect class="uml-hdr" x="250" y="176" width="180" height="86" rx="5"/>
+  <text class="uml-t stereo" x="340" y="196" text-anchor="middle">«container» livrai-api</text>
+  <text class="uml-t name" x="340" y="216" text-anchor="middle">Spring Boot 4.1</text>
+  <text class="uml-t tiny" x="340" y="233" text-anchor="middle">API REST — sans état</text>
+  <text class="uml-t tiny" x="340" y="248" text-anchor="middle">Java 25 LTS</text>
+
+  <!-- DB -->
+  <rect class="uml-box" x="250" y="322" width="180" height="76" rx="5"/>
+  <text class="uml-t stereo" x="340" y="342" text-anchor="middle">«container» livrai-db</text>
+  <text class="uml-t name" x="340" y="362" text-anchor="middle">PostgreSQL 18</text>
+  <text class="uml-t tiny" x="340" y="379" text-anchor="middle">volume persistant</text>
+
+  <!-- Flèches -->
+  <line x1="190" y1="73" x2="246" y2="73" class="uml-l" marker-end="url(#arA)"/>
+  <text class="uml-t tiny" x="218" y="66" text-anchor="middle">HTTPS</text>
+
+  <line x1="340" y1="116" x2="340" y2="172" class="uml-l" marker-end="url(#arA)"/>
+  <text class="uml-t small" x="352" y="140">REST / JSON</text>
+  <text class="uml-t tiny" x="352" y="155">jeton JWT — en-tête Authorization</text>
+
+  <line x1="340" y1="262" x2="340" y2="318" class="uml-l" marker-end="url(#arA)"/>
+  <text class="uml-t small" x="352" y="286">JDBC</text>
+  <text class="uml-t tiny" x="352" y="301">pool HikariCP borné</text>
+
+  <!-- Annotations à droite -->
+  <rect class="uml-box" x="470" y="30" width="216" height="86" rx="5" style="fill:var(--accent-soft)"/>
+  <text class="uml-t small" x="482" y="50">Répond à UX-01 :</text>
+  <text class="uml-t tiny" x="482" y="68">seules les données transitent,</text>
+  <text class="uml-t tiny" x="482" y="83">la page n'est plus reconstruite</text>
+  <text class="uml-t tiny" x="482" y="98">à chaque action.</text>
+
+  <rect class="uml-box" x="470" y="176" width="216" height="86" rx="5" style="fill:var(--accent-soft)"/>
+  <text class="uml-t small" x="482" y="196">Répond à D-02 :</text>
+  <text class="uml-t tiny" x="482" y="214">aucune session en mémoire,</text>
+  <text class="uml-t tiny" x="482" y="229">donc N instances identiques</text>
+  <text class="uml-t tiny" x="482" y="244">et interchangeables.</text>
+
+  <rect class="uml-box" x="470" y="322" width="216" height="76" rx="5" style="fill:var(--accent-soft)"/>
+  <text class="uml-t small" x="482" y="342">Répond à D-03 et D-04 :</text>
+  <text class="uml-t tiny" x="482" y="360">connexions bornées et rendues,</text>
+  <text class="uml-t tiny" x="482" y="375">requêtes paginées et indexées.</text>
+</svg>
+</div>
+<figcaption>
+  Vue d'ensemble en trois tiers. Chaque tier correspond à un conteneur Docker distinct.
+  La colonne de droite rattache chaque choix au constat d'audit qui le motive.
+</figcaption>
+</figure>
+
+<h3 id="tech-back">c. Organisation du back-end</h3>
+
+<p>
+  L'audit a établi que la logique métier vit dans les servlets, faute de couche dédiée
+  (D-01), et que ce code est <b>structurellement non testable</b> : DAO instanciés par
+  <code>new</code>, aucune interface, connexion créée dans la classe elle-même (D-07).
+  La cible corrige les deux par une séparation stricte en quatre couches.
+</p>
+
+<figure>
+<div class="dw">
+<svg viewBox="0 0 700 420" role="img" aria-label="Architecture en couches du back-end">
+  <defs>
+    <marker id="arL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="uml-fill"/>
+    </marker>
+  </defs>
+
+  <rect class="uml-hdr" x="60" y="26" width="470" height="70" rx="5"/>
+  <text class="uml-t name" x="295" y="48" text-anchor="middle">Couche Web — @RestController</text>
+  <text class="uml-t small" x="78" y="68">· expose les routes REST, sérialise le JSON</text>
+  <text class="uml-t small" x="78" y="85">· valide le format des entrées (@Valid) — aucune règle métier ici</text>
+
+  <line x1="295" y1="96" x2="295" y2="122" class="uml-l" marker-end="url(#arL)"/>
+  <text class="uml-t tiny" x="305" y="113">DTO</text>
+
+  <rect class="uml-hdr" x="60" y="124" width="470" height="86" rx="5"/>
+  <text class="uml-t name" x="295" y="146" text-anchor="middle">Couche Service — @Service</text>
+  <text class="uml-t small" x="78" y="166">· règles métier : transitions de statut, calcul de facturation</text>
+  <text class="uml-t small" x="78" y="183">· règles de visibilité selon le rôle · démarcation transactionnelle</text>
+  <text class="uml-t small" x="78" y="200" style="fill:var(--ok)">· ne connaît ni HTTP ni JSON — donc testable sans serveur</text>
+
+  <line x1="295" y1="210" x2="295" y2="236" class="uml-l" marker-end="url(#arL)"/>
+  <text class="uml-t tiny" x="305" y="227">entités</text>
+
+  <rect class="uml-box" x="60" y="238" width="470" height="72" rx="5"/>
+  <text class="uml-t name" x="295" y="260" text-anchor="middle">Couche Repository — Spring Data JPA</text>
+  <text class="uml-t small" x="78" y="280">· accès aux données, requêtes paginées</text>
+  <text class="uml-t small" x="78" y="297">· interfaces — donc substituables en test</text>
+
+  <line x1="295" y1="310" x2="295" y2="336" class="uml-l" marker-end="url(#arL)"/>
+  <text class="uml-t tiny" x="305" y="327">JDBC / Hikari</text>
+
+  <rect class="uml-box" x="60" y="338" width="470" height="56" rx="5"/>
+  <text class="uml-t name" x="295" y="360" text-anchor="middle">PostgreSQL 18</text>
+  <text class="uml-t small" x="295" y="380" text-anchor="middle">contraintes d'intégrité — dernier rempart</text>
+
+  <!-- Transverse -->
+  <rect class="uml-box" x="552" y="26" width="120" height="284" rx="5" style="fill:var(--accent-soft)"/>
+  <text class="uml-t small" x="612" y="48" text-anchor="middle">Transverse</text>
+  <text class="uml-t tiny" x="562" y="72">· Spring Security</text>
+  <text class="uml-t tiny" x="562" y="90">  (filtre JWT)</text>
+  <text class="uml-t tiny" x="562" y="112">· Gestion globale</text>
+  <text class="uml-t tiny" x="562" y="130">  des exceptions</text>
+  <text class="uml-t tiny" x="562" y="152">· Journalisation</text>
+  <text class="uml-t tiny" x="562" y="170">  structurée</text>
+  <text class="uml-t tiny" x="562" y="192">· Métriques</text>
+  <text class="uml-t tiny" x="562" y="210">  Micrometer</text>
+  <text class="uml-t tiny" x="562" y="232">· Configuration</text>
+  <text class="uml-t tiny" x="562" y="250">  externalisée</text>
+  <text class="uml-t tiny" x="562" y="272">· Traçage</text>
+  <text class="uml-t tiny" x="562" y="290">  des requêtes</text>
+</svg>
+</div>
+<figcaption>
+  Architecture en couches du back-end. La couche service — absente de l'application
+  existante — porte les règles métier et ignore HTTP, ce qui la rend testable
+  indépendamment d'un serveur. Chaque couche ne connaît que la suivante.
+</figcaption>
+</figure>
+
+<h4>Organisation du code par domaine</h4>
+
+<p>
+  Le découpage des paquets suit <b>le domaine métier</b>, non la couche technique. Un
+  développeur qui travaille sur la facturation trouve tout au même endroit, plutôt que
+  de naviguer entre un paquet <code>controller</code>, un paquet <code>service</code> et
+  un paquet <code>repository</code> partagés :
+</p>
+
+<pre><code>fr.livrai.crm
+├── delivery/                    # domaine « livraison »
+│   ├── DeliveryController.java      couche web
+│   ├── DeliveryService.java         règles métier
+│   ├── DeliveryRepository.java      accès aux données
+│   ├── Delivery.java                entité
+│   └── dto/                         objets exposés par l'API
+├── invoice/                     # domaine « facturation »
+├── customer/                    # domaine « client »
+├── user/                        # domaine « compte et rôle »
+├── security/                    # JWT, filtre, configuration d'accès
+├── common/                      # exceptions, pagination, audit
+└── config/                      # configuration Spring
+</code></pre>
+
+<div class="box info">
+  <h4>Ce que ce découpage coûte</h4>
+  <p>
+    Il impose une discipline : un service ne doit pas appeler directement le repository
+    d'un autre domaine, mais passer par le service de ce domaine. Sans cette règle, les
+    frontières s'érodent et le bénéfice disparaît. C'est le prix à payer pour garder
+    la possibilité d'extraire un domaine plus tard — et il doit être énoncé à l'équipe,
+    sans quoi il ne sera pas tenu.
+  </p>
+</div>
+
+<h3 id="tech-front">d. Organisation du front-end</h3>
+
+<p>
+  Le front-end Angular est structuré en trois blocs aux responsabilités distinctes :
+</p>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:18%">Bloc</th><th style="width:26%">Contenu</th><th>Responsabilité</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>core</b></td>
+      <td>Services HTTP, intercepteurs, gardes de route, modèles</td>
+      <td>Tout ce qui est chargé une fois et partagé : injection du jeton JWT dans chaque requête, traitement global des erreurs, contrôle d'accès aux routes selon le rôle.</td>
+    </tr>
+    <tr>
+      <td><b>features</b></td>
+      <td>Un dossier par domaine : <code>deliveries</code>, <code>invoices</code>, <code>customers</code>, <code>admin</code>, <code>auth</code></td>
+      <td>Les écrans et leur état. Chaque domaine est <b>chargé à la demande</b> (lazy loading) : un client ne télécharge jamais le code de l'écran d'administration.</td>
+    </tr>
+    <tr>
+      <td><b>shared</b></td>
+      <td>Composants réutilisables : tableau paginé, indicateur de statut, formulaires</td>
+      <td>Homogénéité de l'interface. Le tableau paginé est le composant central : il porte la pagination, le tri et le filtrage exigés par D-04.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Le découpage par domaine est <b>volontairement le même</b> qu'au back-end. Une
+  évolution fonctionnelle touche alors deux dossiers portant le même nom de part et
+  d'autre, ce qui réduit le coût d'entrée dans le projet.
+</p>
+
+<h4>Gestion de l'état</h4>
+
+<p>
+  L'état applicatif (utilisateur connecté, filtres courants, données affichées) est géré
+  par les <b>signaux Angular</b>, natifs depuis la version 16 et stabilisés en version 22.
+  Le choix de ne pas retenir NgRx est argumenté en <a href="#adr-09">ADR-09</a>.
+</p>
+
+<h4>Ce que le front doit garantir</h4>
+
+<ul>
+  <li><b>Un retour visuel systématique</b> — l'audit a constaté qu'aucun indicateur de
+      chargement n'existait, d'où des double-clics et un risque de traitement en double
+      (UX-02). Tout appel réseau neutralise le bouton déclencheur et affiche un état de
+      progression.</li>
+  <li><b>Des messages d'erreur explicites</b> — un échec de connexion réaffichait le
+      formulaire sans explication (UX-03).</li>
+  <li><b>L'échappement du contenu dynamique</b> — Angular échappe par défaut, ce qui
+      préserve la protection contre l'injection de scripts relevée comme point fort
+      (F-04).</li>
+  <li><b>L'accessibilité</b> — libellés associés aux champs, ordre de tabulation,
+      attributs ARIA. L'audit notait leur absence totale.</li>
+</ul>
+
+<div class="box warn">
+  <h4>Le front-end ne porte aucune règle de sécurité</h4>
+  <p>
+    Masquer un bouton selon le rôle est un confort d'interface, <b>jamais une protection</b> :
+    le code du navigateur est à la portée de l'utilisateur. Chaque règle d'autorisation
+    est vérifiée côté serveur, indépendamment de ce que l'interface affiche. C'est la
+    leçon directe de D-09, où un compte client a pu appeler une route d'administration
+    dont le lien ne lui était pas présenté.
+  </p>
+</div>
+
+<h3 id="tech-api">e. Communication front / back</h3>
+
+<p>
+  Le front consomme une <b>API REST</b> exposée par le back, échangeant du JSON sur
+  HTTPS. Le contrat est documenté automatiquement par OpenAPI.
+</p>
+
+<h4>Principes de l'API</h4>
+
+<ul>
+  <li><b>Ressources nommées au pluriel</b>, verbes HTTP porteurs de l'intention :
+      <code>GET /api/v1/deliveries</code>, <code>POST /api/v1/deliveries</code>,
+      <code>PATCH /api/v1/deliveries/{id}/status</code>.</li>
+  <li><b>Versionnement par préfixe</b> (<code>/api/v1</code>) — une application mobile
+      ajoutée plus tard ne se cassera pas au premier changement de contrat.</li>
+  <li><b>Pagination obligatoire</b> sur toute collection. Aucune route ne retourne une
+      liste non bornée : c'est la traduction en règle de conception du constat D-04.</li>
+  <li><b>Codes HTTP signifiants</b> : <code>200</code>, <code>201</code>,
+      <code>400</code> (validation), <code>401</code> (non authentifié),
+      <code>403</code> (non autorisé), <code>404</code>, <code>409</code> (conflit
+      métier, par exemple une transition de statut illégale).</li>
+  <li><b>Erreurs normalisées</b> au format RFC 7807 <i>Problem Details</i>. L'audit
+      relevait qu'une saisie non numérique produisait une page d'erreur brute du serveur
+      exposée à l'utilisateur (D-10).</li>
+</ul>
+
+<h4>Exemple de contrat</h4>
+
+<pre><code>GET /api/v1/deliveries?status=PENDING&amp;page=0&amp;size=20&amp;sort=createdAt,desc
+Authorization: Bearer &lt;jwt&gt;
+
+200 OK
+{
+  "content": [
+    { "id": 42, "reference": "LIV-2026-000042", "status": "PENDING",
+      "volumeM3": 2.5, "weightKg": 120.0, "customerName": "Boulangerie Durand",
+      "createdAt": "2026-09-08T14:23:00Z" }
+  ],
+  "page": { "number": 0, "size": 20, "totalElements": 1284, "totalPages": 65 }
+}</code></pre>
+
+<p>
+  La réponse transporte <b>20 lignes</b>, quel que soit l'historique. C'est la
+  différence structurelle avec l'écran actuel, mesuré à 15,6 Mo pour 20 004 livraisons.
+</p>
+
+<h4>Authentification et parcours d'une requête</h4>
+
+<figure>
+<div class="dw">
+<svg viewBox="0 0 700 330" role="img" aria-label="Séquence d'authentification et d'appel API">
+  <defs>
+    <marker id="arQ" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="uml-fill"/>
+    </marker>
+  </defs>
+
+  <rect class="uml-hdr" x="40" y="20" width="120" height="34" rx="4"/>
+  <text class="uml-t name" x="100" y="42" text-anchor="middle">Angular</text>
+  <line x1="100" y1="54" x2="100" y2="310" class="uml-l dash"/>
+
+  <rect class="uml-hdr" x="290" y="20" width="120" height="34" rx="4"/>
+  <text class="uml-t name" x="350" y="42" text-anchor="middle">Filtre JWT</text>
+  <line x1="350" y1="54" x2="350" y2="310" class="uml-l dash"/>
+
+  <rect class="uml-hdr" x="540" y="20" width="120" height="34" rx="4"/>
+  <text class="uml-t name" x="600" y="42" text-anchor="middle">Service</text>
+  <line x1="600" y1="54" x2="600" y2="310" class="uml-l dash"/>
+
+  <line x1="100" y1="86" x2="344" y2="86" class="uml-l" marker-end="url(#arQ)"/>
+  <text class="uml-t tiny" x="110" y="80">POST /auth/login — email + mot de passe</text>
+
+  <line x1="350" y1="118" x2="106" y2="118" class="uml-l" marker-end="url(#arQ)"/>
+  <text class="uml-t tiny" x="112" y="112">200 — jeton JWT (rôle, expiration)</text>
+
+  <line x1="100" y1="162" x2="344" y2="162" class="uml-l" marker-end="url(#arQ)"/>
+  <text class="uml-t tiny" x="110" y="156">GET /deliveries — Authorization: Bearer</text>
+
+  <rect class="uml-box" x="300" y="178" width="100" height="30" rx="3"/>
+  <text class="uml-t tiny" x="350" y="197" text-anchor="middle">vérifie signature</text>
+
+  <line x1="350" y1="226" x2="594" y2="226" class="uml-l" marker-end="url(#arQ)"/>
+  <text class="uml-t tiny" x="360" y="220">appel autorisé — rôle vérifié</text>
+
+  <line x1="600" y1="268" x2="106" y2="268" class="uml-l" marker-end="url(#arQ)"/>
+  <text class="uml-t tiny" x="150" y="262">200 — page de 20 livraisons</text>
+
+  <rect class="uml-box" x="430" y="288" width="250" height="30" rx="3" style="fill:var(--accent-soft)"/>
+  <text class="uml-t tiny" x="555" y="307" text-anchor="middle">Aucun état conservé entre deux requêtes</text>
+</svg>
+</div>
+<figcaption>
+  Parcours d'une requête authentifiée. Le jeton porte l'identité et le rôle ; le serveur
+  ne conserve rien entre deux appels. C'est ce qui rend les instances interchangeables et
+  lève le verrou D-02.
+</figcaption>
+</figure>
+
+<div class="box warn">
+  <h4>Ce que le choix du JWT coûte</h4>
+  <p>
+    Un jeton signé ne peut pas être révoqué avant son expiration : désactiver un compte
+    ne prend effet qu'au terme de la durée de vie du jeton. C'est le prix de l'absence
+    d'état. On le borne par une <b>durée de vie courte</b> (15 minutes) assortie d'un
+    jeton de rafraîchissement, ce qui ramène la fenêtre d'exposition à un niveau
+    acceptable. La solution alternative — une session partagée en Redis — supprimerait ce
+    défaut mais réintroduirait un composant d'état à exploiter, pour un besoin que LiVrai
+    n'a pas à cette échelle.
+  </p>
+</div>
+
+<h3 id="tech-ope">f. Architecture opérationnelle</h3>
+
+<p>
+  La fiche précise que <i>le choix de l'hébergeur n'est pas encore défini</i> et que le
+  déploiement se fera dans un environnement Docker. C'est exactement ce à quoi la
+  conteneurisation répond : l'application embarque ses dépendances et ne suppose rien de
+  la machine qui l'exécute.
+</p>
+
+<figure>
+<div class="dw">
+<svg viewBox="0 0 740 560" role="img" aria-label="Diagramme de composants UML de l'architecture opérationnelle Docker">
+  <defs>
+    <marker id="arD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="uml-fill"/>
+    </marker>
+  </defs>
+
+  <!-- Navigateur -->
+  <rect class="uml-box" x="292" y="14" width="160" height="44" rx="4"/>
+  <text class="uml-t stereo" x="372" y="32" text-anchor="middle">«device»</text>
+  <text class="uml-t name" x="372" y="49" text-anchor="middle">Navigateur</text>
+
+  <line x1="372" y1="58" x2="372" y2="88" class="uml-l" marker-end="url(#arD)"/>
+  <text class="uml-t tiny" x="382" y="78">HTTPS : 443</text>
+
+  <!-- Hôte Docker -->
+  <rect class="grp" x="30" y="92" width="680" height="404" rx="6"/>
+  <text class="uml-t small" x="44" y="112">«execution environment» Hôte Docker — hébergeur non arrêté</text>
+
+  <!-- Réseau front -->
+  <rect class="grp" x="48" y="122" width="644" height="126" rx="5"/>
+  <text class="uml-t tiny" x="60" y="138">réseau : livrai-public</text>
+
+  <rect class="uml-hdr" x="240" y="146" width="264" height="86" rx="4"/>
+  <text class="uml-t stereo" x="372" y="166" text-anchor="middle">«container» livrai-front</text>
+  <text class="uml-t name" x="372" y="185" text-anchor="middle">Nginx + Angular 22</text>
+  <text class="uml-t tiny" x="256" y="204">· sert les fichiers statiques compilés</text>
+  <text class="uml-t tiny" x="256" y="219">· relaie /api vers livrai-api</text>
+
+  <line x1="372" y1="232" x2="372" y2="270" class="uml-l" marker-end="url(#arD)"/>
+  <text class="uml-t tiny" x="382" y="256">REST/JSON : 8080</text>
+
+  <!-- Réseau interne -->
+  <rect class="grp" x="48" y="262" width="644" height="222" rx="5"/>
+  <text class="uml-t tiny" x="60" y="278">réseau : livrai-internal — non exposé à l'extérieur</text>
+
+  <rect class="uml-hdr" x="188" y="288" width="368" height="90" rx="4"/>
+  <text class="uml-t stereo" x="372" y="308" text-anchor="middle">«container» livrai-api  ×N instances</text>
+  <text class="uml-t name" x="372" y="327" text-anchor="middle">Spring Boot 4.1 — Java 25</text>
+  <text class="uml-t tiny" x="204" y="346">· sans état : toute instance traite toute requête</text>
+  <text class="uml-t tiny" x="204" y="361">· /actuator/health · /actuator/metrics</text>
+
+  <line x1="372" y1="378" x2="372" y2="408" class="uml-l" marker-end="url(#arD)"/>
+  <text class="uml-t tiny" x="382" y="398">JDBC : 5432</text>
+
+  <rect class="uml-box" x="188" y="410" width="368" height="62" rx="4"/>
+  <text class="uml-t stereo" x="372" y="430" text-anchor="middle">«container» livrai-db</text>
+  <text class="uml-t name" x="372" y="449" text-anchor="middle">PostgreSQL 18</text>
+  <text class="uml-t tiny" x="372" y="464" text-anchor="middle">volume persistant — seul composant à état</text>
+
+  <!-- Volume -->
+  <rect class="uml-box" x="576" y="410" width="106" height="62" rx="4" style="fill:var(--accent-soft)"/>
+  <text class="uml-t stereo" x="629" y="430" text-anchor="middle">«volume»</text>
+  <text class="uml-t tiny" x="629" y="448" text-anchor="middle">livrai-data</text>
+  <text class="uml-t tiny" x="629" y="463" text-anchor="middle">sauvegardé</text>
+  <line x1="556" y1="441" x2="572" y2="441" class="uml-l"/>
+
+  <!-- Secrets -->
+  <rect class="uml-box" x="62" y="288" width="112" height="90" rx="4" style="fill:var(--accent-soft)"/>
+  <text class="uml-t stereo" x="118" y="308" text-anchor="middle">«config»</text>
+  <text class="uml-t tiny" x="118" y="326" text-anchor="middle">Variables</text>
+  <text class="uml-t tiny" x="118" y="341" text-anchor="middle">d'environnement</text>
+  <text class="uml-t tiny" x="118" y="359" text-anchor="middle">et secrets</text>
+  <text class="uml-t tiny" x="118" y="374" text-anchor="middle">— corrige D-06</text>
+  <line x1="174" y1="330" x2="184" y2="330" class="uml-l" marker-end="url(#arD)"/>
+
+  <!-- Observabilité -->
+  <rect class="uml-box" x="576" y="288" width="106" height="90" rx="4" style="fill:var(--accent-soft)"/>
+  <text class="uml-t stereo" x="629" y="308" text-anchor="middle">«optionnel»</text>
+  <text class="uml-t tiny" x="629" y="326" text-anchor="middle">Collecteur</text>
+  <text class="uml-t tiny" x="629" y="341" text-anchor="middle">métriques</text>
+  <text class="uml-t tiny" x="629" y="359" text-anchor="middle">et journaux</text>
+  <line x1="556" y1="330" x2="572" y2="330" class="uml-l" marker-end="url(#arD)"/>
+
+  <!-- Note réplication -->
+  <text class="uml-t tiny" x="372" y="516" text-anchor="middle">Les N instances de livrai-api sont interchangeables : aucune session en mémoire (D-02).</text>
+  <text class="uml-t tiny" x="372" y="534" text-anchor="middle">Ajouter une instance ne déconnecte personne — ce qui était impossible dans l'application existante.</text>
+</svg>
+</div>
+<figcaption>
+  Diagramme de composants UML de l'architecture opérationnelle. Trois conteneurs, deux
+  réseaux. La base n'est jamais exposée à l'extérieur : elle n'est joignable que depuis
+  le réseau interne. Le conteneur d'API est réplicable parce qu'il ne conserve aucun état.
+</figcaption>
+</figure>
+
+<h4>Rôle de chaque conteneur</h4>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:16%">Conteneur</th><th style="width:22%">Image</th><th style="width:14%">Exposition</th><th>Rôle</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>livrai-front</b></td>
+      <td><code>nginx:1.27-alpine</code></td>
+      <td>443 (public)</td>
+      <td>Sert les fichiers statiques produits par la compilation Angular et relaie les appels <code>/api</code> vers l'API. Seul conteneur accessible de l'extérieur.</td>
+    </tr>
+    <tr>
+      <td><b>livrai-api</b></td>
+      <td><code>eclipse-temurin:25-jre-alpine</code></td>
+      <td>8080 (interne)</td>
+      <td>Exécute l'application Spring Boot. <b>Réplicable à N instances</b> : c'est le composant qui absorbe les pics de charge.</td>
+    </tr>
+    <tr>
+      <td><b>livrai-db</b></td>
+      <td><code>postgres:18-alpine</code></td>
+      <td>5432 (interne)</td>
+      <td>Base de données. Seul composant à état, adossé à un volume persistant et sauvegardé.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Flux entre conteneurs</h4>
+
+<ol>
+  <li>Le navigateur appelle <code>livrai-front</code> en HTTPS et reçoit l'application Angular.</li>
+  <li>L'application appelle <code>/api/v1/...</code> ; Nginx relaie vers <code>livrai-api</code> sur le réseau interne.</li>
+  <li><code>livrai-api</code> vérifie le jeton JWT, applique les règles d'autorisation, puis interroge <code>livrai-db</code> via le pool HikariCP.</li>
+  <li>La réponse JSON remonte la même chaîne. <b>Aucun état n'est conservé</b> entre deux requêtes.</li>
+</ol>
+
+<div class="box info">
+  <h4>Deux réseaux, et pourquoi</h4>
+  <p>
+    <code>livrai-db</code> n'est rattaché qu'au réseau interne : <b>la base n'est pas
+    joignable depuis l'extérieur</b>, même si un port était accidentellement publié sur
+    l'hôte. Dans l'environnement de développement actuel, le port 3306 de MySQL est publié
+    sur la machine hôte — acceptable en développement, à proscrire en production.
+  </p>
+</div>
+
+<h4>Construction des images</h4>
+
+<p>
+  Les deux images applicatives sont construites en <b>plusieurs étapes</b> : une étape de
+  compilation (Maven pour le back, Node pour le front) puis une étape d'exécution qui ne
+  reçoit que l'artefact produit. L'image finale ne contient ni le code source, ni les
+  outils de compilation — elle est plus légère et expose moins de surface d'attaque.
+</p>
+
+<p>
+  La configuration est <b>intégralement externalisée</b> en variables d'environnement :
+  URL de la base, identifiants, clé de signature des jetons, origines autorisées. La même
+  image est promue de la recette à la production sans recompilation — ce que l'application
+  actuelle interdit, ses identifiants étant codés en dur (D-06).
+</p>
+
+<h3 id="tech-obs">g. Télémétrie et supervision</h3>
+
+<p>
+  L'audit relevait qu'<b>aucun système de journalisation n'était en place</b> — ni SLF4J,
+  ni Log4j — et que les exceptions étaient soit ignorées, soit imprimées sur la sortie
+  standard (D-08). Diagnostiquer un incident en production relevait donc de la
+  reconstitution.
+</p>
+
+<p>
+  Plus important encore : la saturation démontrée par l'audit — 150 connexions pour 151
+  autorisées — survient <b>avant toute limite de processeur ou de mémoire</b>. Une
+  supervision classique, qui observe la machine, ne l'aurait pas vue venir. La
+  télémétrie doit donc porter sur les <b>ressources applicatives</b>.
+</p>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:20%">Besoin</th><th style="width:24%">Moyen</th><th>Ce que cela permet</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Journaux</b></td>
+      <td>SLF4J + Logback, format JSON</td>
+      <td>Journaux structurés sur la sortie standard, collectés par l'orchestrateur. Chaque ligne porte un identifiant de corrélation permettant de suivre une requête de bout en bout.</td>
+    </tr>
+    <tr>
+      <td><b>État de santé</b></td>
+      <td><code>/actuator/health</code></td>
+      <td>Sondes de vivacité et de disponibilité. Une instance en échec est retirée de la rotation automatiquement — impossible aujourd'hui, l'instance étant unique.</td>
+    </tr>
+    <tr>
+      <td><b>Métriques</b></td>
+      <td>Micrometer → Prometheus</td>
+      <td>Temps de réponse par route, taux d'erreur, <b>occupation du pool de connexions</b>, mémoire de la JVM.</td>
+    </tr>
+    <tr>
+      <td><b>Traçage</b></td>
+      <td>Micrometer Tracing / OpenTelemetry</td>
+      <td>Décomposition du temps passé dans une requête. Identifie la requête SQL lente plutôt que de constater que « l'écran est lent ».</td>
+    </tr>
+    <tr>
+      <td><b>Audit métier</b></td>
+      <td>Table <code>delivery_status_history</code></td>
+      <td>Qui a accepté, refusé ou facturé, et quand. Répond à l'absence totale de traçabilité relevée par l'audit.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box crit">
+  <h4>Les trois indicateurs à surveiller en priorité</h4>
+  <ol>
+    <li><b>Taux d'occupation du pool de connexions.</b> C'est l'indicateur qui aurait
+        révélé D-03 avant la panne. Une alerte se déclenche à 80 % d'occupation.</li>
+    <li><b>Temps de réponse du 95<sup>e</sup> centile par route.</b> Détecte la
+        dégradation progressive liée à la volumétrie (D-04) avant que les utilisateurs
+        ne la signalent.</li>
+    <li><b>Taux d'erreurs 5xx.</b> L'audit a constaté qu'une saisie non numérique
+        produisait un <code>HTTP 500</code> exposé à l'utilisateur, sans qu'aucune trace
+        n'en soit conservée (D-10).</li>
+  </ol>
+</div>
+
+<!-- ====================================================== 4. DONNÉES -->
+<h2 id="data"><span class="num">04</span>Modèle de données</h2>
+
+<p class="lead">
+  L'audit qualifiait le modèle existant de sain et directement réutilisable (F-03). Il
+  constitue donc le point de départ — mais il ne couvre ni la facturation, ni les quatre
+  rôles, ni la traçabilité, tous exigés par la cible.
+</p>
+
+<h3>Ce qui change, et pourquoi</h3>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:26%">Existant</th><th style="width:30%">Cible</th><th>Motif</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>user.admin BOOLEAN</code></td>
+      <td><code>app_user.role</code> — énumération à 4 valeurs</td>
+      <td>Un booléen ne peut pas porter quatre rôles. Cause directe de l'autorisation dispersée (D-09).</td>
+    </tr>
+    <tr>
+      <td><code>user</code> confond compte et client</td>
+      <td><code>app_user</code> + <code>customer</code> + <code>customer_account</code></td>
+      <td>La fiche demande la gestion des informations du client. Plusieurs personnes d'une même entreprise doivent pouvoir se connecter sans dupliquer l'adresse de facturation.</td>
+    </tr>
+    <tr>
+      <td><code>status VARCHAR(255)</code> en français</td>
+      <td>Type <code>delivery_status</code></td>
+      <td>Une faute de frappe créait un état invalide silencieux, et la logique dépendait de la langue d'affichage (D-14).</td>
+    </tr>
+    <tr>
+      <td><code>volume INT</code>, <code>weight INT</code></td>
+      <td><code>NUMERIC</code> avec <code>CHECK &gt; 0</code></td>
+      <td>Volume <code>-99</code> était accepté, stocké et facturable (D-10). Un colis peut par ailleurs mesurer 0,4 m³.</td>
+    </tr>
+    <tr>
+      <td><code>price</code> sur la livraison</td>
+      <td>Tables <code>invoice</code> et <code>invoice_line</code></td>
+      <td>La fiche exige la gestion de la facturation. Une facture regroupe plusieurs livraisons, usage B2B courant.</td>
+    </tr>
+    <tr>
+      <td>Aucune trace des actions</td>
+      <td><code>delivery_status_history</code></td>
+      <td>« Qui a facturé quoi, et quand » — absence relevée par l'audit. Condition de l'historique demandé par la fiche.</td>
+    </tr>
+    <tr>
+      <td>Index uniquement sur la clé étrangère</td>
+      <td>Index sur les colonnes réellement filtrées</td>
+      <td>Aucun index ne couvrait <code>status</code>, critère de tri principal, et le tri se faisait en mémoire Java (D-04).</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<figure>
+<div class="dw">
+<svg viewBox="0 0 760 620" role="img" aria-label="Diagramme de classes UML du modèle de données cible">
+  <!-- app_user -->
+  <rect class="uml-hdr" x="30" y="30" width="190" height="28" rx="4"/>
+  <text class="uml-t name" x="125" y="49" text-anchor="middle">app_user</text>
+  <rect class="uml-box" x="30" y="58" width="190" height="132"/>
+  <text class="uml-t small" x="40" y="76">id : bigint «PK»</text>
+  <text class="uml-t small" x="40" y="94">email : varchar «UQ»</text>
+  <text class="uml-t small" x="40" y="112">password_hash : varchar</text>
+  <text class="uml-t small" x="40" y="130">first_name, last_name</text>
+  <text class="uml-t small" x="40" y="148" style="fill:var(--accent)">role : user_role</text>
+  <text class="uml-t small" x="40" y="166">enabled : boolean</text>
+  <text class="uml-t small" x="40" y="184">created_at, updated_at</text>
+
+  <!-- customer -->
+  <rect class="uml-hdr" x="285" y="30" width="190" height="28" rx="4"/>
+  <text class="uml-t name" x="380" y="49" text-anchor="middle">customer</text>
+  <rect class="uml-box" x="285" y="58" width="190" height="132"/>
+  <text class="uml-t small" x="295" y="76">id : bigint «PK»</text>
+  <text class="uml-t small" x="295" y="94">company_name : varchar</text>
+  <text class="uml-t small" x="295" y="112">siret : varchar «UQ»</text>
+  <text class="uml-t small" x="295" y="130">contact_email, phone</text>
+  <text class="uml-t small" x="295" y="148">billing_street, city…</text>
+  <text class="uml-t small" x="295" y="166">active : boolean</text>
+  <text class="uml-t small" x="295" y="184">created_at, updated_at</text>
+
+  <!-- customer_account -->
+  <rect class="uml-hdr" x="120" y="228" width="200" height="28" rx="4"/>
+  <text class="uml-t name" x="220" y="247" text-anchor="middle">customer_account</text>
+  <rect class="uml-box" x="120" y="256" width="200" height="52"/>
+  <text class="uml-t small" x="130" y="274">customer_id «PK,FK»</text>
+  <text class="uml-t small" x="130" y="292">user_id «PK,FK»</text>
+
+  <line x1="125" y1="190" x2="125" y2="242" class="uml-l"/>
+  <line x1="125" y1="242" x2="116" y2="242" class="uml-l"/>
+  <text class="uml-t tiny" x="100" y="215">1</text>
+  <text class="uml-t tiny" x="100" y="238">0..*</text>
+
+  <line x1="380" y1="190" x2="380" y2="242" class="uml-l"/>
+  <line x1="380" y1="242" x2="324" y2="242" class="uml-l"/>
+  <text class="uml-t tiny" x="390" y="215">1</text>
+  <text class="uml-t tiny" x="340" y="238">0..*</text>
+
+  <!-- delivery -->
+  <rect class="uml-hdr" x="285" y="344" width="200" height="28" rx="4"/>
+  <text class="uml-t name" x="385" y="363" text-anchor="middle">delivery</text>
+  <rect class="uml-box" x="285" y="372" width="200" height="168"/>
+  <text class="uml-t small" x="295" y="390">id : bigint «PK»</text>
+  <text class="uml-t small" x="295" y="408">reference : varchar «UQ»</text>
+  <text class="uml-t small" x="295" y="426">customer_id : bigint «FK»</text>
+  <text class="uml-t small" x="295" y="444" style="fill:var(--accent)">status : delivery_status</text>
+  <text class="uml-t small" x="295" y="462" style="fill:var(--accent)">volume_m3 : numeric &gt; 0</text>
+  <text class="uml-t small" x="295" y="480" style="fill:var(--accent)">weight_kg : numeric &gt; 0</text>
+  <text class="uml-t small" x="295" y="498">pickup_* / delivery_*</text>
+  <text class="uml-t small" x="295" y="516">price_ht : numeric(12,2)</text>
+  <text class="uml-t small" x="295" y="534">created_at, updated_at</text>
+
+  <line x1="380" y1="190" x2="380" y2="196" class="uml-l"/>
+  <path class="uml-l" d="M 475 124 L 545 124 L 545 400 L 489 400"/>
+  <text class="uml-t tiny" x="500" y="118">1</text>
+  <text class="uml-t tiny" x="500" y="394">0..*</text>
+
+  <!-- history -->
+  <rect class="uml-hdr" x="30" y="344" width="212" height="28" rx="4"/>
+  <text class="uml-t name" x="136" y="363" text-anchor="middle">delivery_status_history</text>
+  <rect class="uml-box" x="30" y="372" width="212" height="114"/>
+  <text class="uml-t small" x="40" y="390">id : bigint «PK»</text>
+  <text class="uml-t small" x="40" y="408">delivery_id : bigint «FK»</text>
+  <text class="uml-t small" x="40" y="426">previous_status, new_status</text>
+  <text class="uml-t small" x="40" y="444">changed_by_user_id «FK»</text>
+  <text class="uml-t small" x="40" y="462">comment : varchar(500)</text>
+  <text class="uml-t small" x="40" y="480">changed_at : timestamptz</text>
+
+  <line x1="281" y1="430" x2="246" y2="430" class="uml-l"/>
+  <text class="uml-t tiny" x="264" y="424">1</text>
+  <text class="uml-t tiny" x="252" y="444">0..*</text>
+
+  <!-- invoice -->
+  <rect class="uml-hdr" x="548" y="228" width="190" height="28" rx="4"/>
+  <text class="uml-t name" x="643" y="247" text-anchor="middle">invoice</text>
+  <rect class="uml-box" x="548" y="256" width="190" height="150"/>
+  <text class="uml-t small" x="558" y="274">id : bigint «PK»</text>
+  <text class="uml-t small" x="558" y="292">reference : varchar «UQ»</text>
+  <text class="uml-t small" x="558" y="310">customer_id : bigint «FK»</text>
+  <text class="uml-t small" x="558" y="328" style="fill:var(--accent)">status : invoice_status</text>
+  <text class="uml-t small" x="558" y="346">issued_at, due_at, paid_at</text>
+  <text class="uml-t small" x="558" y="364">total_ht : numeric(12,2)</text>
+  <text class="uml-t small" x="558" y="382">vat_rate, total_ttc</text>
+  <text class="uml-t small" x="558" y="400">issued_by_user_id «FK»</text>
+
+  <path class="uml-l" d="M 475 100 L 660 100 L 660 222"/>
+  <text class="uml-t tiny" x="620" y="94">1</text>
+  <text class="uml-t tiny" x="646" y="218">0..*</text>
+
+  <!-- invoice_line -->
+  <rect class="uml-hdr" x="548" y="448" width="190" height="28" rx="4"/>
+  <text class="uml-t name" x="643" y="467" text-anchor="middle">invoice_line</text>
+  <rect class="uml-box" x="548" y="476" width="190" height="96"/>
+  <text class="uml-t small" x="558" y="494">id : bigint «PK»</text>
+  <text class="uml-t small" x="558" y="512">invoice_id : bigint «FK»</text>
+  <text class="uml-t small" x="558" y="530">delivery_id «FK,UQ»</text>
+  <text class="uml-t small" x="558" y="548">label : varchar</text>
+  <text class="uml-t small" x="558" y="566">amount_ht : numeric(12,2)</text>
+
+  <line x1="643" y1="406" x2="643" y2="442" class="uml-l"/>
+  <text class="uml-t tiny" x="653" y="424">1..*</text>
+
+  <line x1="489" y1="500" x2="542" y2="500" class="uml-l"/>
+  <text class="uml-t tiny" x="500" y="494">1</text>
+  <text class="uml-t tiny" x="520" y="516">0..1</text>
+
+  <text class="uml-t tiny" x="380" y="600" text-anchor="middle">Sept tables. Les champs en couleur signalent une correction directe d'un constat d'audit.</text>
+</svg>
+</div>
+<figcaption>
+  Diagramme de classes UML du modèle cible. Les deux tables existantes deviennent sept :
+  séparation du compte et du client, facturation, et journal des changements de statut.
+  Les champs colorés corrigent un constat de l'audit.
+</figcaption>
+</figure>
+
+<h3>Contraintes structurantes</h3>
+
+<p>
+  Trois contraintes méritent d'être signalées parce qu'elles portent une règle métier au
+  niveau du stockage, et non seulement dans le code :
+</p>
+
+<ul>
+  <li>
+    <code>ck_delivery_billed_has_price</code> — une livraison au statut
+    <code>BILLED</code> porte obligatoirement un prix. L'état « facturée sans montant »
+    devient impossible, quelle que soit l'erreur applicative.
+  </li>
+  <li>
+    <code>uq_invoice_line_delivery</code> — une livraison ne peut pas figurer sur deux
+    factures. La double facturation est écartée structurellement.
+  </li>
+  <li>
+    <code>ck_delivery_volume_positive</code> — le volume et le poids sont strictement
+    positifs. L'audit avait démontré qu'un volume de <code>-99</code> était accepté,
+    stocké, affiché à l'administrateur et facturable (D-10).
+  </li>
+</ul>
+
+<div class="box info">
+  <h4>Validation en deux endroits, et ce n'est pas une redondance inutile</h4>
+  <p>
+    Les mêmes règles sont exprimées dans l'application (annotations de validation) et
+    dans la base (contraintes <code>CHECK</code>). L'application donne un message
+    d'erreur exploitable à l'utilisateur ; la base garantit qu'aucun chemin — script de
+    reprise, correction manuelle, défaut applicatif — ne peut créer un état invalide.
+    Le coût est de maintenir les deux en cohérence lors d'une évolution.
+  </p>
+</div>
+
+<h3>Scripts SQL livrés</h3>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:34%">Fichier</th><th style="width:16%">Production</th><th>Contenu</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>db/postgres/01-schema.sql</code></td>
+      <td><span class="b b-ok">Oui</span></td>
+      <td>Types énumérés, sept tables, contraintes d'intégrité et de validation, index, déclencheurs de mise à jour, séquences de références métier.</td>
+    </tr>
+    <tr>
+      <td><code>db/postgres/02-seed.sql</code></td>
+      <td><span class="b b-crit">Non</span></td>
+      <td>Jeu de démonstration : quatre comptes internes, trois entreprises clientes, six livraisons couvrant l'ensemble du cycle, une facture. Les mots de passe y sont publics.</td>
+    </tr>
+    <tr>
+      <td><code>db/postgres/README.md</code></td>
+      <td>—</td>
+      <td>Mode d'exécution et correspondance entre chaque correction du schéma et le constat d'audit qui la motive.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Ces scripts posent l'état initial. En développement continu, l'évolution du schéma est
+  prise en charge par <b>Flyway</b> : chaque changement devient un fichier de migration
+  versionné et rejouable, là où l'existant ne disposait que d'un script d'initialisation
+  sans historique.
+</p>
+
+<!-- ====================================================== 5. NFR -->
+<h2 id="nfr"><span class="num">05</span>Réponse aux contraintes non fonctionnelles</h2>
+
+<p class="lead">
+  Cette section vérifie, contrainte par contrainte, que les choix d'architecture y
+  répondent — et nomme ce qui reste à confirmer par la mesure.
+</p>
+
+<h3>Volumétrie</h3>
+
+<p>
+  <b>Constat.</b> L'écran principal pesait 15,6 Mo pour 20 004 livraisons, contre 3 Ko
+  pour 4. Progression linéaire, sans palier, indépendante du nombre d'utilisateurs :
+  elle se dégrade avec le seul historique, que LiVrai accumule par construction (D-04).
+</p>
+
+<p><b>Réponses.</b></p>
+
+<ul>
+  <li><b>Pagination imposée par le contrat d'API.</b> Aucune route ne retourne de liste
+      non bornée. Une page de 20 livraisons pèse le même poids que la base contienne
+      1 000 ou 1 000 000 de lignes — le coût d'un écran devient constant.</li>
+  <li><b>Filtrage et tri exécutés en SQL</b>, avec les index correspondants. Le tri par
+      statut se faisait en mémoire Java sur l'intégralité des lignes chargées.</li>
+  <li><b>Index partiel</b> <code>idx_delivery_pending</code> sur la file de traitement :
+      l'écran le plus consulté par l'exploitation n'interroge qu'une fraction de la table.</li>
+  <li><b>Projections ciblées</b> : les listes ne chargent que les colonnes affichées,
+      là où l'existant matérialisait tous les objets complets avant d'en produire le HTML.</li>
+</ul>
+
+<div class="box warn">
+  <h4>Ce qui reste à vérifier</h4>
+  <p>
+    Ces réponses sont structurelles, mais leur effet chiffré doit être mesuré. L'audit
+    recommandait déjà un test de charge sur une copie représentative de la base ; il
+    doit être conduit sur la cible avant mise en service, avec le poids de page et le
+    temps de réponse du 95<sup>e</sup> centile comme indicateurs.
+  </p>
+</div>
+
+<h3>Disponibilité</h3>
+
+<p>
+  <b>Constat.</b> Deux mécanismes distincts interdisaient la disponibilité en pic.
+  L'état de session en mémoire rendait la réplication inopérante (D-02) ; la gestion des
+  connexions fixait un plafond mesuré à 150 pour 151 autorisées, atteint <b>avant toute
+  limite matérielle</b> (D-03).
+</p>
+
+<p><b>Réponses.</b></p>
+
+<ul>
+  <li><b>Back-end sans état.</b> L'identité voyage dans le jeton, vérifié à chaque
+      requête. Toute instance peut traiter toute requête : ajouter un serveur ne
+      déconnecte plus personne. C'est la levée du verrou principal de l'audit.</li>
+  <li><b>Pool de connexions borné et restitué.</b> Le nombre maximal de connexions
+      devient un paramètre d'exploitation, cohérent avec la configuration de PostgreSQL,
+      au lieu d'être le produit accidentel du nombre de threads du serveur.</li>
+  <li><b>Sondes de santé.</b> Une instance défaillante est retirée de la rotation
+      automatiquement — impossible aujourd'hui, l'instance étant unique.</li>
+  <li><b>Déploiement sans interruption.</b> Les instances étant interchangeables, elles
+      peuvent être remplacées une à une. Aujourd'hui, tout redéploiement déconnecte
+      l'ensemble des utilisateurs, les sessions en mémoire étant perdues.</li>
+</ul>
+
+<div class="box crit">
+  <h4>Le point de défaillance unique qui subsiste</h4>
+  <p>
+    La base de données reste un composant unique et à état. La haute disponibilité de
+    PostgreSQL — réplication, bascule automatique — n'est pas traitée dans ce document :
+    elle dépend de l'hébergeur, non encore choisi. <b>C'est une décision à prendre au
+    moment de ce choix</b>, et elle doit être posée explicitement plutôt que découverte
+    en production. À court terme, la sauvegarde régulière du volume et un temps de
+    restauration mesuré constituent le minimum.
+  </p>
+</div>
+
+<h3>Maintenabilité</h3>
+
+<p>
+  <b>Constat.</b> La logique métier vit dans les servlets (D-01) ; aucun test n'existe
+  et le code ne pourrait pas être testé en l'état (D-07). C'est le facteur principal du
+  coût de maintenance signalé par les équipes.
+</p>
+
+<p><b>Réponses.</b></p>
+
+<ul>
+  <li><b>Couche service isolée.</b> Les règles métier ignorent HTTP : elles sont
+      testables sans serveur, et réutilisables par une future API mobile sans duplication.</li>
+  <li><b>Injection de dépendances.</b> Les repositories sont des interfaces, substituables
+      par des doublures en test. L'existant instanciait ses DAO par <code>new</code>, ce
+      qui rendait toute substitution impossible.</li>
+  <li><b>Trois niveaux de test</b> : unitaire sur les services (Mockito), intégration sur
+      les repositories avec un vrai PostgreSQL (Testcontainers), bout en bout sur les
+      routes principales.</li>
+  <li><b>Traitement des erreurs centralisé et journalisation structurée</b>, là où
+      l'existant ignorait silencieusement certaines exceptions et convertissait les
+      autres en <code>RuntimeException</code> nue (D-08).</li>
+  <li><b>Découpage par domaine</b> : une évolution fonctionnelle se localise dans un
+      dossier, au lieu de traverser des paquets techniques partagés.</li>
+</ul>
+
+<h3>Évolutivité</h3>
+
+<p>
+  <b>Constat.</b> Le socle en fin de vie enferme l'application : l'écosystème Java ayant
+  migré vers <code>jakarta</code>, les bibliothèques récentes sont incompatibles (D-11).
+  Exposer une API imposerait de réécrire les règles métier enfermées dans les servlets
+  (D-01).
+</p>
+
+<p><b>Réponses.</b></p>
+
+<ul>
+  <li><b>Socle supporté</b> : Java 25 LTS, Spring Boot 4.1, Angular 22, PostgreSQL 18.
+      Chaque composant reçoit des correctifs de sécurité, et ces technologies sont
+      couramment pratiquées — ce qui traite aussi la difficulté de recrutement signalée.</li>
+  <li><b>API REST versionnée</b> : une application mobile ou une intégration client
+      consomme le même contrat, sans réécriture ni duplication.</li>
+  <li><b>Monolithe modulaire</b> : les frontières de domaine sont tracées. Si la
+      facturation devait un jour être extraite, la découpe existe déjà.</li>
+  <li><b>Migrations versionnées</b> : l'évolution du schéma est tracée et rejouable.</li>
+</ul>
+
+<h3>Sécurité</h3>
+
+<div class="tw">
+<table>
+  <thead>
+    <tr><th style="width:28%">Constat d'audit</th><th>Réponse dans la cible</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>D-05</b> — mots de passe en clair, vérifiés en base</td>
+      <td>Hachage BCrypt avec sel. La comparaison est à temps constant. Le mot de passe ne circule plus dans l'application à chaque requête.</td>
+    </tr>
+    <tr>
+      <td><b>D-06</b> — identifiants versionnés dans le dépôt, compte <code>root</code></td>
+      <td>Secrets injectés par l'environnement. Compte applicatif dédié, aux droits restreints. La rotation d'un mot de passe ne demande plus de recompiler.</td>
+    </tr>
+    <tr>
+      <td><b>D-09</b> — autorisation dispersée, fuite démontrée sur <code>/clients</code></td>
+      <td>Autorisation déclarative et centralisée, <b>refus par défaut</b> : une route sans règle explicite est inaccessible. L'oubli ne peut plus produire une ouverture.</td>
+    </tr>
+    <tr>
+      <td><b>D-10</b> — volume <code>-99</code> accepté ; <code>abc</code> → <code>HTTP 500</code></td>
+      <td>Validation déclarative aux frontières, contraintes <code>CHECK</code> en base, erreurs normalisées renvoyées au format <i>Problem Details</i>.</td>
+    </tr>
+    <tr>
+      <td><b>F-02 / F-04</b> — acquis à préserver</td>
+      <td>JPA produit des requêtes paramétrées par construction ; Angular échappe le contenu dynamique par défaut. Les deux protections deviennent structurelles plutôt que dépendantes de la vigilance.</td>
+    </tr>
+    <tr>
+      <td><b>Nouveau — ouverture aux utilisateurs externes</b></td>
+      <td>HTTPS, politique CORS restrictive, limitation du débit sur les routes d'authentification et d'inscription, journalisation des tentatives échouées.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ====================================================== 6. ADR -->
+<h2 id="adr"><span class="num">06</span>Décisions d'architecture</h2>
+
+<p class="lead">
+  Chaque décision structurante est consignée avec son contexte, son alternative écartée
+  et son coût. Tracer le <i>pourquoi</i> évite qu'une décision soit défaite par
+  méconnaissance de ce qu'elle protégeait.
+</p>
+
+<div class="adr" id="adr-01">
+  <div class="adr-head"><span class="adr-id">ADR-01</span><span class="adr-title">Refonte complète plutôt que modernisation progressive</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>Java 1.6 et <code>javax.servlet</code> empêchent l'usage des bibliothèques récentes (D-11). Les trois risques déterminants sont structurels, non ponctuels.</dd>
+    <dt>Décision</dt>
+    <dd>Réécrire l'application sur un socle neuf, en conservant le périmètre fonctionnel et le modèle de données comme acquis.</dd>
+    <dt>Alternative écartée</dt>
+    <dd>Migration incrémentale <code>javax</code> → <code>jakarta</code> puis introduction progressive de Spring. Écartée : l'absence de tests (D-07) rend toute transformation progressive risquée, et la migration ne traiterait ni D-02 ni D-04.</dd>
+    <dt>Coût assumé</dt>
+    <dd>Pas de livraison intermédiaire : la valeur n'apparaît qu'à la bascule. La compacité de l'existant — 13 classes, 700 lignes (F-01) — rend ce risque acceptable.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-02">
+  <div class="adr-head"><span class="adr-id">ADR-02</span><span class="adr-title">Application monopage plutôt que rendu serveur</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>Chaque action recharge la page entière et fait perdre sa position à l'utilisateur (UX-01). La fiche impose une SPA Angular pour une « interface très interactive ».</dd>
+    <dt>Décision</dt>
+    <dd>Front Angular découplé, consommant une API REST.</dd>
+    <dt>Coût assumé</dt>
+    <dd>Deux bases de code et deux chaînes de compilation. Référencement naturel dégradé — sans objet pour un outil interne authentifié.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-03">
+  <div class="adr-head"><span class="adr-id">ADR-03</span><span class="adr-title">Authentification par jeton JWT, sans état serveur</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>La session en mémoire interdit la réplication : c'est le premier risque déterminant de l'audit (D-02).</dd>
+    <dt>Décision</dt>
+    <dd>Jeton signé porté par l'en-tête <code>Authorization</code>, vérifié à chaque requête. Aucune session serveur.</dd>
+    <dt>Alternative écartée</dt>
+    <dd>Sessions partagées dans Redis. Écartée : réintroduit un composant à état à exploiter et à superviser, pour un besoin que LiVrai n'a pas à cette échelle.</dd>
+    <dt>Coût assumé</dt>
+    <dd>Un jeton ne se révoque pas avant expiration. Borné par une durée de vie de 15 minutes et un jeton de rafraîchissement.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-04">
+  <div class="adr-head"><span class="adr-id">ADR-04</span><span class="adr-title">Architecture en couches avec couche service obligatoire</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>La logique métier vit dans les servlets, ce qui la rend ni réutilisable ni testable (D-01, D-07).</dd>
+    <dt>Décision</dt>
+    <dd>Quatre couches strictes. Un contrôleur ne contient aucune règle métier ; un service ne connaît ni HTTP ni JSON.</dd>
+    <dt>Coût assumé</dt>
+    <dd>Plus de classes et des objets de transposition entre couches. C'est le prix de la testabilité — précisément ce qui manque aujourd'hui.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-05">
+  <div class="adr-head"><span class="adr-id">ADR-05</span><span class="adr-title">Pool de connexions borné et transactions déclaratives</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>Connexions jamais fermées, 60 dormantes mesurées, saturation à 150 pour 151 (D-03). Aucune démarcation transactionnelle (D-12).</dd>
+    <dt>Décision</dt>
+    <dd>HikariCP dimensionné en cohérence avec <code>max_connections</code>, transactions délimitées par <code>@Transactional</code> au niveau du service.</dd>
+    <dt>Conséquence</dt>
+    <dd>Le plafond de connexions devient un paramètre choisi, aligné entre application et base. Les enchaînements d'écritures — facturer plusieurs livraisons — deviennent atomiques.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-06">
+  <div class="adr-head"><span class="adr-id">ADR-06</span><span class="adr-title">Pagination obligatoire sur toute collection</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>15,6 Mo mesurés pour 20 004 livraisons, sans palier (D-04, UX-04).</dd>
+    <dt>Décision</dt>
+    <dd>Aucune route de l'API ne retourne de liste non bornée. La pagination fait partie du contrat, pas d'une optimisation ultérieure.</dd>
+    <dt>Coût assumé</dt>
+    <dd>Le front doit gérer la navigation entre pages et les filtres. En contrepartie, le coût d'un écran cesse de dépendre de l'historique.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-07">
+  <div class="adr-head"><span class="adr-id">ADR-07</span><span class="adr-title">Autorisation centralisée, refus par défaut</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd><code>ClientsServlet</code> ne vérifiait pas le rôle : un compte client a listé tous les clients et créé un utilisateur (D-09). La cause est structurelle — le contrôle reposait sur la vigilance du développeur à chaque ajout.</dd>
+    <dt>Décision</dt>
+    <dd>Règles déclaratives portées par la couche service, refus par défaut : une route sans règle explicite est inaccessible. Ce principe généralise le point fort F-05 relevé sur le routage.</dd>
+    <dt>Conséquence</dt>
+    <dd>L'oubli produit une erreur visible plutôt qu'une ouverture silencieuse. Cette classe de défaut disparaît.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-08">
+  <div class="adr-head"><span class="adr-id">ADR-08</span><span class="adr-title">Conteneurisation et configuration externalisée</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>Les identifiants sont codés en dur : changer d'environnement impose de recompiler (D-06). La fiche indique que l'hébergeur n'est pas choisi.</dd>
+    <dt>Décision</dt>
+    <dd>Une image par composant, configuration entièrement en variables d'environnement. La même image est promue de la recette à la production.</dd>
+    <dt>Coût assumé</dt>
+    <dd>L'équipe doit acquérir les pratiques Docker. En contrepartie, l'environnement de développement devient reproductible en une commande.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-09">
+  <div class="adr-head"><span class="adr-id">ADR-09</span><span class="adr-title">Signaux Angular plutôt que NgRx</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>L'énoncé encourage NgRx sans l'imposer. L'état applicatif de LiVrai est modeste : utilisateur connecté, filtres, pages de résultats.</dd>
+    <dt>Décision</dt>
+    <dd>Utiliser les signaux natifs d'Angular 22, avec des services d'état par domaine.</dd>
+    <dt>Alternative écartée</dt>
+    <dd>NgRx. Écartée : le patron Redux impose actions, réducteurs et effets pour chaque interaction. Sur un état de cette taille, la cérémonie dépasse le bénéfice — et l'équipe n'a pas de pratique préalable du patron.</dd>
+    <dt>Réversibilité</dt>
+    <dd>L'état étant déjà isolé dans des services par domaine, l'introduction de NgRx resterait localisée si la complexité le justifiait.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-10">
+  <div class="adr-head"><span class="adr-id">ADR-10</span><span class="adr-title">PostgreSQL plutôt que la poursuite sous MySQL</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>PostgreSQL est imposé par l'énoncé. L'audit notait cependant que MySQL 8 était le seul composant du socle réellement supporté : le choix mérite d'être argumenté, non subi.</dd>
+    <dt>Ce que PostgreSQL apporte ici</dt>
+    <dd>Types énumérés natifs, qui traitent directement D-14 ; contraintes <code>CHECK</code> pleinement appliquées, qui traitent D-10 ; index partiels, qui servent la file de traitement de D-04.</dd>
+    <dt>Coût assumé</dt>
+    <dd>Migration de données obligatoire — hors périmètre de ce document — et montée en compétence de l'équipe sur un nouveau SGBD.</dd>
+  </dl>
+</div>
+
+<hr>
+
+<h3>Ce que ce document ne tranche pas</h3>
+
+<p>
+  Trois sujets restent ouverts et devront être décidés avant la mise en service. Les
+  nommer ici évite qu'ils soient découverts trop tard :
+</p>
+
+<ol>
+  <li><b>La haute disponibilité de la base.</b> Elle dépend de l'hébergeur, non encore
+      choisi. À traiter au moment de ce choix.</li>
+  <li><b>La stratégie de reprise des données.</b> En particulier le fait que tous les
+      utilisateurs devront redéfinir leur mot de passe, les mots de passe actuels étant
+      stockés en clair et donc non migrables sans reconduire la faille.</li>
+  <li><b>La campagne de test de charge.</b> Elle validera que les seuils mesurés par
+      l'audit sont effectivement levés, et situera le nouveau point de rupture par
+      rapport au trafic réel de LiVrai.</li>
+</ol>
+
+<div class="footnote">
+  <p>
+    <b>Références.</b> Ce document s'appuie sur le rapport d'audit du CRM existant
+    (<code>docs/audit-livrai.html</code>), dont les références <code>D-xx</code>,
+    <code>F-xx</code> et <code>UX-xx</code> sont reprises telles quelles, ainsi que sur la
+    fiche descriptive de la mission fournie par LiVrai. Les scripts de création de la
+    base figurent dans <code>db/postgres/</code>.
+  </p>
+  <p>
+    <b>Limites.</b> Les seuils chiffrés cités proviennent de l'audit, conduit sur un
+    environnement de test alimenté par des données générées, et non de la production.
+    L'architecture proposée lève structurellement les mécanismes identifiés ; la mesure
+    de son effet réel suppose la campagne de charge mentionnée ci-dessus.
+  </p>
+</div>
+
+</div>

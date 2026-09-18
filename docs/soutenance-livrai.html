@@ -1,0 +1,1233 @@
+<title>Soutenance LiVrai</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --paper: #fbfaf8;
+    --slide: #ffffff;
+    --ink: #16161a;
+    --ink-soft: #4a4740;
+    --ink-faint: #6e6a64;
+    --rule: #e2ddd4;
+    --rule-soft: #efebe4;
+    --accent: #3d5a8a;
+    --accent-soft: #eaeff7;
+    --crit: #a8342b;
+    --crit-soft: #fbecea;
+    --ok: #1f6f4a;
+    --ok-soft: #e8f4ed;
+    --warn: #8a5a14;
+    --warn-soft: #fcf2e2;
+    --shadow: 0 1px 2px rgba(22,22,26,.04), 0 8px 28px rgba(22,22,26,.07);
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #121215;
+      --slide: #1b1b20;
+      --ink: #ecebe8;
+      --ink-soft: #b5b1a8;
+      --ink-faint: #8b867d;
+      --rule: #33323a;
+      --rule-soft: #26262d;
+      --accent: #8fabd8;
+      --accent-soft: #222b3c;
+      --crit: #e88a80;
+      --crit-soft: #341f1d;
+      --ok: #6ec89a;
+      --ok-soft: #162c22;
+      --warn: #d9a75c;
+      --warn-soft: #2f2413;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #121215;
+    --slide: #1b1b20;
+    --ink: #ecebe8;
+    --ink-soft: #b5b1a8;
+    --ink-faint: #8b867d;
+    --rule: #33323a;
+    --rule-soft: #26262d;
+    --accent: #8fabd8;
+    --accent-soft: #222b3c;
+    --crit: #e88a80;
+    --crit-soft: #341f1d;
+    --ok: #6ec89a;
+    --ok-soft: #162c22;
+    --warn: #d9a75c;
+    --warn-soft: #2f2413;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Chrome ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 18px;
+    padding: 10px 22px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .brand {
+    font-family: var(--display);
+    font-weight: 600; font-size: 16px; letter-spacing: -.01em;
+    margin-right: auto;
+  }
+  .brand span { color: var(--accent); }
+  .counter {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .clock {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--ink-soft); font-variant-numeric: tabular-nums;
+    background: var(--rule-soft); padding: 4px 9px; border-radius: 5px;
+  }
+  .btn {
+    font-family: var(--body); font-size: 12.5px; font-weight: 500;
+    color: var(--ink-soft); background: var(--slide);
+    border: 1px solid var(--rule); border-radius: 6px;
+    padding: 5px 11px; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- Layout ---------- */
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 336px;
+    gap: 22px;
+    align-items: start;
+    padding: 22px;
+    max-width: 1500px; margin: 0 auto;
+  }
+  @media (max-width: 1080px) {
+    .stage { grid-template-columns: minmax(0,1fr); }
+  }
+
+  .deck { display: flex; flex-direction: column; gap: 22px; }
+
+  .slide {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--slide);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 46px 54px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    container-type: inline-size;
+  }
+  .slide.hidden { display: none; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .eyebrow .n {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+  }
+  .eyebrow .bar { flex: 1; height: 1px; background: var(--rule); }
+
+  .slide h2 {
+    font-family: var(--display);
+    font-size: clamp(23px, 3.1cqw, 38px);
+    line-height: 1.12; letter-spacing: -.018em;
+    font-weight: 600; margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .slide .sub {
+    font-size: clamp(13px, 1.32cqw, 17px);
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+    max-width: 68ch;
+  }
+  .slide .body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+  .slide.top .body { justify-content: flex-start; }
+
+  /* ---------- Slide content pieces ---------- */
+  .cols { display: grid; gap: 18px; }
+  .cols.c2 { grid-template-columns: 1fr 1fr; }
+  .cols.c3 { grid-template-columns: repeat(3, 1fr); }
+
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stat {
+    border: 1px solid var(--rule); border-radius: 9px;
+    padding: 16px 18px; background: var(--paper);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .stat .v {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(24px, 3.3cqw, 40px); line-height: 1;
+    letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  }
+  .stat.is-crit .v { color: var(--crit); }
+  .stat.is-ok .v { color: var(--ok); }
+  .stat .k {
+    font-family: var(--mono); font-size: clamp(8.5px,.88cqw,10.5px);
+    letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .stat .note { font-size: clamp(10px,1.02cqw,12.5px); color: var(--ink-soft); line-height: 1.35; }
+
+  table.t {
+    width: 100%; border-collapse: collapse;
+    font-size: clamp(10.5px, 1.08cqw, 13.5px);
+  }
+  table.t th {
+    text-align: left; font-family: var(--mono);
+    font-size: clamp(8.5px,.86cqw,10px); letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500;
+    padding: 0 12px 7px 0; border-bottom: 1px solid var(--rule);
+  }
+  table.t td {
+    padding: 8px 12px 8px 0; border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top; line-height: 1.38; color: var(--ink-soft);
+  }
+  table.t td:first-child { color: var(--ink); font-weight: 500; }
+  table.t tr:last-child td { border-bottom: none; }
+
+  .ref {
+    font-family: var(--mono); font-size: .92em;
+    color: var(--accent); font-weight: 500;
+  }
+  .ref.crit { color: var(--crit); }
+
+  .chip {
+    display: inline-block; font-family: var(--mono);
+    font-size: clamp(8px,.82cqw,9.5px); letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 4px; white-space: nowrap; font-weight: 500;
+  }
+  .chip.crit { background: var(--crit-soft); color: var(--crit); }
+  .chip.ok   { background: var(--ok-soft); color: var(--ok); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.acc  { background: var(--accent-soft); color: var(--accent); }
+
+  .flow { display: flex; align-items: stretch; gap: 10px; }
+  .flow .step {
+    flex: 1; border: 1px solid var(--rule); border-radius: 8px;
+    padding: 13px 14px; background: var(--paper);
+    display: flex; flex-direction: column; gap: 5px; min-width: 0;
+  }
+  .flow .step .lbl {
+    font-family: var(--mono); font-size: clamp(8px,.84cqw,10px);
+    letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .flow .step .txt { font-size: clamp(10px,1.04cqw,13px); line-height: 1.36; }
+  .flow .arrow {
+    align-self: center; color: var(--ink-faint);
+    font-size: 16px; flex: 0 0 auto;
+  }
+
+  .cause {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    gap: 12px; align-items: center;
+    padding: 11px 0; border-bottom: 1px solid var(--rule-soft);
+  }
+  .cause:last-child { border-bottom: none; }
+  .cause .from { font-size: clamp(10.5px,1.06cqw,13px); color: var(--ink-soft); }
+  .cause .to   { font-size: clamp(10.5px,1.06cqw,13px); color: var(--ink); font-weight: 500; }
+  .cause .mid  { color: var(--accent); font-family: var(--mono); font-size: 13px; }
+
+  ul.pts { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 11px; }
+  ul.pts li {
+    display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: start;
+    font-size: clamp(11px,1.12cqw,14.5px); line-height: 1.42; color: var(--ink-soft);
+  }
+  ul.pts li b { color: var(--ink); font-weight: 600; }
+  ul.pts .mk {
+    font-family: var(--mono); font-size: clamp(9px,.92cqw,11px);
+    color: var(--accent); padding-top: .28em; font-weight: 500;
+  }
+
+  .quote {
+    border-left: 2px solid var(--accent);
+    padding: 4px 0 4px 18px;
+    font-family: var(--display); font-style: italic;
+    font-size: clamp(14px,1.65cqw,21px); line-height: 1.4;
+    color: var(--ink); text-wrap: balance;
+  }
+  .quote .who {
+    display: block; margin-top: 9px;
+    font-family: var(--body); font-style: normal;
+    font-size: clamp(10px,.96cqw,12px); color: var(--ink-faint);
+  }
+
+  .panel {
+    border: 1px solid var(--rule); border-radius: 9px;
+    padding: 15px 17px; background: var(--paper);
+    display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  }
+  .panel.acc { border-color: var(--accent); background: var(--accent-soft); }
+  .panel.crit { border-left: 3px solid var(--crit); }
+  .panel.ok { border-left: 3px solid var(--ok); }
+  .panel h4 {
+    margin: 0; font-family: var(--mono);
+    font-size: clamp(8.5px,.88cqw,10.5px); letter-spacing: .07em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 500;
+  }
+  .panel p { margin: 0; font-size: clamp(10.5px,1.06cqw,13.5px); line-height: 1.42; color: var(--ink-soft); }
+  .panel .big {
+    font-family: var(--display); font-weight: 600;
+    font-size: clamp(16px,1.9cqw,25px); line-height: 1.14; color: var(--ink);
+    letter-spacing: -.015em;
+  }
+
+  code.k {
+    font-family: var(--mono); font-size: .9em;
+    background: var(--rule-soft); padding: .1em .38em; border-radius: 4px;
+    color: var(--ink);
+  }
+
+  /* Title slide */
+  .slide.title { justify-content: center; }
+  .slide.title h1 {
+    font-family: var(--display);
+    font-size: clamp(34px, 5.4cqw, 66px);
+    line-height: 1.02; letter-spacing: -.028em; font-weight: 700;
+    margin: 0 0 14px; text-wrap: balance;
+  }
+  .slide.title .lede {
+    font-size: clamp(13px,1.5cqw,19px); color: var(--ink-soft);
+    max-width: 54ch; margin: 0 0 30px;
+  }
+  .slide.title .who {
+    font-family: var(--mono); font-size: clamp(9.5px,.96cqw,12px);
+    color: var(--ink-faint); letter-spacing: .04em;
+    display: flex; gap: 22px; flex-wrap: wrap;
+  }
+  .slide.title .who b { color: var(--ink-soft); font-weight: 500; }
+
+  .rule-x { height: 1px; background: var(--rule); margin: 14px 0; }
+
+  /* ---------- Notes rail ---------- */
+  .rail { position: sticky; top: 74px; display: flex; flex-direction: column; gap: 12px; }
+  @media (max-width: 1080px) { .rail { position: static; } }
+
+  .notes {
+    background: var(--slide); border: 1px solid var(--rule);
+    border-radius: 10px; padding: 17px 19px;
+    box-shadow: var(--shadow);
+    max-height: calc(100vh - 120px); overflow-y: auto;
+  }
+  .notes-head {
+    display: flex; align-items: baseline; gap: 9px;
+    padding-bottom: 10px; margin-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .notes-head .t {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-right: auto;
+  }
+  .notes-head .time {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 3px 8px; border-radius: 5px; font-variant-numeric: tabular-nums;
+  }
+  .notes .say {
+    font-size: 14px; line-height: 1.62; color: var(--ink); margin: 0 0 13px;
+  }
+  .notes .say:last-child { margin-bottom: 0; }
+  .notes .say b { font-weight: 600; }
+  .notes .say em { font-style: italic; color: var(--ink-soft); }
+  .notes .cue {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-faint);
+    margin: 16px 0 7px; padding-top: 11px; border-top: 1px solid var(--rule-soft);
+  }
+  .notes .warnbox {
+    background: var(--warn-soft); border-radius: 7px;
+    padding: 10px 12px; font-size: 12.5px; line-height: 1.48; color: var(--ink-soft);
+  }
+  .notes .warnbox b { color: var(--ink); }
+  .notes .qa {
+    background: var(--accent-soft); border-radius: 7px;
+    padding: 10px 12px; font-size: 12.5px; line-height: 1.48; color: var(--ink-soft);
+  }
+  .notes .qa b { color: var(--ink); display: block; margin-bottom: 3px; }
+
+  .progress {
+    display: flex; gap: 3px; padding: 0 2px;
+  }
+  .progress i {
+    flex: 1; height: 3px; border-radius: 2px;
+    background: var(--rule); cursor: pointer;
+  }
+  .progress i.done { background: var(--accent); opacity: .45; }
+  .progress i.now { background: var(--accent); opacity: 1; }
+
+  .hint {
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint);
+    text-align: center; line-height: 1.6;
+  }
+  .hint kbd {
+    font-family: var(--mono); background: var(--rule-soft);
+    border: 1px solid var(--rule); border-radius: 4px;
+    padding: 1px 5px; font-size: 10px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .slide { transition: opacity .16s ease; }
+  }
+
+  @media print {
+    @page { size: landscape; margin: 10mm; }
+    body { background: #fff; }
+    .topbar, .rail, .hint { display: none !important; }
+    .stage { display: block; padding: 0; max-width: 100%; }
+    .deck { display: block; }
+    .slide {
+      display: flex !important; page-break-after: always;
+      box-shadow: none; border: 1px solid #ccc; margin-bottom: 0;
+    }
+  }
+</style>
+
+<div class="topbar">
+  <div class="brand">Li<span>Vrai</span> — soutenance</div>
+  <div class="counter" id="counter">01 / 18</div>
+  <div class="clock" id="clock">00:00</div>
+  <button class="btn" id="timerBtn">Démarrer</button>
+  <button class="btn" id="allBtn">Tout afficher</button>
+</div>
+
+<div class="stage">
+  <div class="deck" id="deck">
+
+    <!-- 01 -->
+    <section class="slide title" data-time="0:35">
+      <div class="body">
+        <div class="eyebrow"><span class="n">01</span><span>Projet 5 — Architecte logicielle</span><span class="bar"></span></div>
+        <h1>Du diagnostic à la refonte</h1>
+        <p class="lede">
+          Audit du CRM de LiVrai, puis conception de l'architecture cible d'une
+          application full-stack Java / Angular / PostgreSQL.
+        </p>
+        <div class="who">
+          <span><b>Carole Fourny-Manassevitz</b></span>
+          <span><b>Client</b> LiVrai — Meilin, chef de projet</span>
+          <span><b>Septembre 2026</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="slide top" data-time="0:50">
+      <div class="eyebrow"><span class="n">02</span><span>Le contexte</span><span class="bar"></span></div>
+      <h2>Une entreprise qui grandit plus vite que son outil</h2>
+      <p class="sub">
+        LiVrai, 150 employés, livraison de marchandises en grande quantité pour les
+        professionnels. Le CRM interne soutient toute l'activité commerciale.
+      </p>
+      <div class="body">
+        <div class="cols c3">
+          <div class="panel crit">
+            <h4>Signal 1 — constaté</h4>
+            <div class="big">Lenteurs</div>
+            <p>Les équipes attendent devant les écrans de livraisons.</p>
+          </div>
+          <div class="panel crit">
+            <h4>Signal 2 — constaté</h4>
+            <div class="big">Maintenance difficile</div>
+            <p>Chaque évolution coûte cher et fait peur.</p>
+          </div>
+          <div class="panel warn">
+            <h4>Signal 3 — anticipé</h4>
+            <div class="big">Disponibilité en pic</div>
+            <p>Aucun incident encore survenu. À démontrer, pas à constater.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="slide top" data-time="0:45">
+      <div class="eyebrow"><span class="n">03</span><span>Méthode d'audit</span><span class="bar"></span></div>
+      <h2>Deux natures de signaux, deux méthodes</h2>
+      <p class="sub">
+        Cette distinction gouverne tout le rapport : on ne démontre pas un fait observé
+        comme on démontre un risque à venir.
+      </p>
+      <div class="body">
+        <table class="t">
+          <thead>
+            <tr><th style="width:16%">Nature</th><th style="width:30%">Méthode</th><th>Ce que ça donne sur LiVrai</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Constaté</td>
+              <td>Je <b>remonte</b> du symptôme vers sa cause dans le code</td>
+              <td>« C'est lent » → connexions jamais fermées, requêtes non bornées, rechargement complet</td>
+            </tr>
+            <tr>
+              <td>Anticipé</td>
+              <td>Rien n'est observable : je <b>descends</b> de l'architecture vers un scénario</td>
+              <td>« Et en cas de pic ? » → scénario de rupture chiffré, seuil calculé</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="rule-x"></div>
+        <div class="cols c2">
+          <div class="panel ok">
+            <h4>Ce que j'ai fait, et que beaucoup sautent</h4>
+            <p><b>J'ai déployé et parcouru l'application.</b> MySQL 8 en conteneur, Tomcat 8.5, WAR déployé. Les deux profils, tous les parcours.</p>
+          </div>
+          <div class="panel">
+            <h4>Ce que ça a changé</h4>
+            <p>Trois défauts supposés à la lecture sont devenus des <b>preuves</b>. Et plusieurs constats n'existaient que là.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="slide top" data-time="1:00">
+      <div class="eyebrow"><span class="n">04</span><span>Audit — l'application existante</span><span class="bar"></span></div>
+      <h2>Ce que j'ai trouvé sous le capot</h2>
+      <p class="sub">
+        Application web Java monolithique : servlets, JSP, JDBC direct. Aucun framework.
+        Déploiement en WAR sur un Tomcat unique.
+      </p>
+      <div class="body">
+        <div class="stat-row">
+          <div class="stat"><div class="v">13</div><div class="k">classes Java</div><div class="note">~700 lignes. Intégralement analysable.</div></div>
+          <div class="stat is-crit"><div class="v">0</div><div class="k">test automatisé</div><div class="note">JUnit déclaré, jamais utilisé.</div></div>
+          <div class="stat is-crit"><div class="v">0</div><div class="k">couche service</div><div class="note">Le métier vit dans les servlets.</div></div>
+        </div>
+        <div class="rule-x"></div>
+        <div class="flow">
+          <div class="step"><span class="lbl">Navigateur</span><span class="txt">Requête HTTP</span></div>
+          <div class="arrow">→</div>
+          <div class="step"><span class="lbl">Filtre</span><span class="txt">Auth + 1 requête SQL <b>à chaque appel</b></span></div>
+          <div class="arrow">→</div>
+          <div class="step"><span class="lbl">Servlet</span><span class="txt">Routage <b>et</b> logique métier</span></div>
+          <div class="arrow">→</div>
+          <div class="step"><span class="lbl">DAO</span><span class="txt"><code class="k">new UserDao()</code> à la main</span></div>
+          <div class="arrow">→</div>
+          <div class="step"><span class="lbl">JSP</span><span class="txt">Page HTML complète</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 -->
+    <section class="slide top" data-time="0:50">
+      <div class="eyebrow"><span class="n">05</span><span>Audit — points forts</span><span class="bar"></span></div>
+      <h2>D'abord, ce qui est sain</h2>
+      <p class="sub">
+        Un audit qui ne voit que le négatif ne sert à personne. Ces acquis sont ce qu'on
+        garde — et ils réduisent le risque de la refonte.
+      </p>
+      <div class="body">
+        <ul class="pts">
+          <li><span class="mk">F-02</span><span><b>Aucune injection SQL possible.</b> Tous les accès passent par des <code class="k">PreparedStatement</code> paramétrés. C'est la faille la plus répandue de cette génération d'applications — elle a été évitée.</span></li>
+          <li><span class="mk">F-03</span><span><b>Un modèle de données propre.</b> Schéma normalisé, clé étrangère déclarée, <code class="k">DECIMAL</code> pour les montants et non un flottant. Directement réutilisable.</span></li>
+          <li><span class="mk">F-04</span><span><b>Aucune injection de script.</b> JSP sous <code class="k">WEB-INF/</code>, échappement systématique par <code class="k">&lt;c:out&gt;</code>.</span></li>
+          <li><span class="mk">F-01</span><span><b>Un code intégralement lisible.</b> Pas de framework, donc pas de magie : on suit une requête de bout en bout. Une reprise complète tient en quelques jours.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 06 -->
+    <section class="slide top" data-time="1:05">
+      <div class="eyebrow"><span class="n">06</span><span>Audit — la mesure qui porte le rapport</span><span class="bar"></span></div>
+      <h2>La panne arrive avant la limite matérielle</h2>
+      <p class="sub">
+        Le rapport entre deux valeurs de configuration transforme une inquiétude en
+        risque calculable.
+      </p>
+      <div class="body">
+        <div class="stat-row">
+          <div class="stat"><div class="v">150</div><div class="k">threads Tomcat max</div><div class="note">Une connexion retenue par thread, jamais fermée.</div></div>
+          <div class="stat"><div class="v">151</div><div class="k">connexions MySQL max</div><div class="note">Plafond du serveur de base de données.</div></div>
+          <div class="stat is-crit"><div class="v">1</div><div class="k">connexion de marge</div><div class="note">Au-delà : refus de service total.</div></div>
+        </div>
+        <div class="rule-x"></div>
+        <div class="cols c2">
+          <div class="panel crit">
+            <h4>Pourquoi c'est contre-intuitif</h4>
+            <p>La panne survient <b>avant</b> toute saturation processeur ou mémoire. Une supervision classique, qui surveille la machine, ne la voit pas venir.</p>
+          </div>
+          <div class="panel">
+            <h4>Mesuré en fonctionnement</h4>
+            <p><b>60 connexions ouvertes</b> après une simple session de test, toutes à l'état <code class="k">Sleep</code>. La plus ancienne depuis 897 secondes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 -->
+    <section class="slide top" data-time="0:55">
+      <div class="eyebrow"><span class="n">07</span><span>Audit — volumétrie</span><span class="bar"></span></div>
+      <h2>15,6 Mo pour afficher un écran</h2>
+      <p class="sub">
+        <code class="k">getAllDeliveries()</code> charge toute la table, sans
+        <code class="k">LIMIT</code>, à chaque affichage.
+      </p>
+      <div class="body">
+        <div class="stat-row">
+          <div class="stat"><div class="v">3 Ko</div><div class="k">avec 4 livraisons</div><div class="note">L'application telle qu'elle a été conçue.</div></div>
+          <div class="stat is-crit"><div class="v">15,6 Mo</div><div class="k">avec 20 004 livraisons</div><div class="note">20 006 lignes envoyées au navigateur.</div></div>
+          <div class="stat is-crit"><div class="v">242 Mo</div><div class="k">mémoire — 10 requêtes</div><div class="note">Sur un tas plafonné à 512 Mo.</div></div>
+        </div>
+        <div class="rule-x"></div>
+        <div class="panel crit">
+          <h4>Le point qui compte pour le métier</h4>
+          <p>
+            Cette dégradation est <b>linéaire et sans palier</b>, et elle est
+            <b>indépendante du nombre d'utilisateurs</b> : elle empire avec le seul
+            historique, que LiVrai accumule par construction. Chaque commande enregistrée
+            alourdit définitivement l'écran principal.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 -->
+    <section class="slide top" data-time="1:10">
+      <div class="eyebrow"><span class="n">08</span><span>Audit — sécurité vérifiée</span><span class="bar"></span></div>
+      <h2>Trois failles démontrées, pas supposées</h2>
+      <p class="sub">
+        Chacune a été reproduite sur l'application en fonctionnement.
+      </p>
+      <div class="body">
+        <table class="t">
+          <thead>
+            <tr><th style="width:10%">Réf.</th><th style="width:30%">Ce que j'ai fait</th><th>Ce que j'ai obtenu</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ref crit">D-09</span></td>
+              <td>Appel de <code class="k">/clients</code> depuis un compte <b>client</b></td>
+              <td><b>La liste complète des clients de LiVrai, avec leurs emails</b> — y compris des concurrents. Et création d'un utilisateur par <code class="k">POST</code>. Fuite de données + élévation de privilège.</td>
+            </tr>
+            <tr>
+              <td><span class="ref crit">D-05</span></td>
+              <td>Création de deux comptes, puis lecture directe de la table <code class="k">user</code></td>
+              <td><b>Les mots de passe y figurent en clair</b>, tels que saisis. Responsabilité RGPD engagée.</td>
+            </tr>
+            <tr>
+              <td><span class="ref crit">D-10</span></td>
+              <td>Commande avec volume <code class="k">-99</code>, puis volume <code class="k">abc</code></td>
+              <td><b>Le négatif est accepté, stocké, affiché et facturable.</b> Le texte produit un <code class="k">HTTP 500</code> brut exposé à l'utilisateur.</td>
+            </tr>
+            <tr>
+              <td><span class="ref crit">UX-06</span></td>
+              <td>Clic sur « Refuser » une commande</td>
+              <td><code class="k">405 Method Not Allowed</code>, statut inchangé. <b>Refuser une commande était impossible en production.</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 09 -->
+    <section class="slide top" data-time="0:50">
+      <div class="eyebrow"><span class="n">09</span><span>Audit — conclusion</span><span class="bar"></span></div>
+      <h2>Trois risques déterminants</h2>
+      <p class="sub">
+        Sur quatorze déficiences relevées, trois commandent la décision.
+      </p>
+      <div class="body">
+        <ul class="pts">
+          <li><span class="mk">D-02</span><span><b>Le service ne peut pas être répliqué.</b> L'identité est en mémoire Tomcat. Ajouter un serveur déconnecte l'utilisateur en pleine saisie. Ni absorption de pic, ni suppression du point de défaillance unique.</span></li>
+          <li><span class="mk">D-03</span><span><b>La saturation est à une connexion près.</b> 150 possibles pour 151 autorisées, et la panne précède toute limite matérielle.</span></li>
+          <li><span class="mk">D-04</span><span><b>La dégradation par l'historique est sans palier.</b> Rien ne vient stabiliser la situation — au contraire, le succès commercial l'aggrave.</span></li>
+        </ul>
+        <div class="rule-x"></div>
+        <div class="panel">
+          <h4>Facteur aggravant transverse</h4>
+          <p>L'absence de tests et de couche service <span class="ref">D-01</span> <span class="ref">D-07</span> ne crée aucune panne par elle-même — mais elle rend la correction de ces trois risques coûteuse et incertaine. C'est ce qui transforme un problème technique en <b>problème de trajectoire</b>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide top" data-time="1:00">
+      <div class="eyebrow"><span class="n">10</span><span>Transition — de l'audit à la cible</span><span class="bar"></span></div>
+      <h2>La règle que je me suis fixée</h2>
+      <div class="body">
+        <div class="quote">
+          Qualifier les problèmes assez précisément pour que la solution devienne
+          évidente — sans jamais l'écrire.
+          <span class="who">La frontière de l'audit : il établit l'existant, il ne choisit pas la cible.</span>
+        </div>
+        <div class="rule-x"></div>
+        <div class="cols c2">
+          <div class="panel">
+            <h4>Exercice 1 — l'audit</h4>
+            <p>Établit la <b>baseline</b>. Aucune techno recommandée, aucun « il faut ». Le commanditaire décide.</p>
+          </div>
+          <div class="panel acc">
+            <h4>Exercice 2 — l'architecture</h4>
+            <p>La stack est <b>imposée</b> par le client. Mon travail n'est donc pas de la choisir, mais de <b>justifier qu'elle répond aux constats</b> — et de nommer ce qu'elle coûte.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide top" data-time="1:10">
+      <div class="eyebrow"><span class="n">11</span><span>Architecture — objectifs</span><span class="bar"></span></div>
+      <h2>Chaque objectif descend d'un constat mesuré</h2>
+      <p class="sub">
+        Pas de « moderniser l'appli ». Une cause, un objectif, une décision vérifiable.
+      </p>
+      <div class="body">
+        <div class="cause">
+          <div class="from"><span class="ref crit">D-02</span> Session en mémoire → réplication impossible</div>
+          <div class="mid">→</div>
+          <div class="to"><b>Disponibilité</b> — back-end sans état, jeton JWT, N instances interchangeables</div>
+        </div>
+        <div class="cause">
+          <div class="from"><span class="ref crit">D-03</span> 150 connexions pour 151, jamais fermées</div>
+          <div class="mid">→</div>
+          <div class="to"><b>Disponibilité</b> — pool borné, transactions déclaratives</div>
+        </div>
+        <div class="cause">
+          <div class="from"><span class="ref crit">D-04</span> 15,6 Mo par écran, sans palier</div>
+          <div class="mid">→</div>
+          <div class="to"><b>Performance</b> — pagination imposée par le contrat d'API</div>
+        </div>
+        <div class="cause">
+          <div class="from"><span class="ref crit">D-01</span> <span class="ref crit">D-07</span> Métier dans les servlets, 0 test</div>
+          <div class="mid">→</div>
+          <div class="to"><b>Maintenabilité</b> — couche service isolée et testable</div>
+        </div>
+        <div class="cause">
+          <div class="from"><span class="ref crit">D-11</span> Java 1.6, Tomcat 8.5 en fin de vie</div>
+          <div class="mid">→</div>
+          <div class="to"><b>Évolutivité</b> — socle supporté, API REST réutilisable</div>
+        </div>
+        <div class="cause">
+          <div class="from"><span class="ref crit">D-05</span> <span class="ref crit">D-06</span> <span class="ref crit">D-09</span> Clair, secrets, fuite</div>
+          <div class="mid">→</div>
+          <div class="to"><b>Sécurité</b> — BCrypt, secrets externalisés, refus par défaut</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide top" data-time="1:00">
+      <div class="eyebrow"><span class="n">12</span><span>Architecture — périmètre</span><span class="bar"></span></div>
+      <h2>Le métier change, pas seulement la technique</h2>
+      <p class="sub">
+        Aujourd'hui, le service commercial crée les comptes et commande pour le client.
+        Il devient un goulot d'étranglement.
+      </p>
+      <div class="body">
+        <div class="cols c3">
+          <div class="panel ok">
+            <h4>Nouveau — autonomie</h4>
+            <p>Le client <b>crée son compte</b> et commande lui-même. Le commercial garde la main sur les comptes qu'il gère déjà : les deux voies coexistent.</p>
+          </div>
+          <div class="panel ok">
+            <h4>Nouveau — exigé par la fiche</h4>
+            <p><b>Gestion de la facturation</b> et <b>historique des livraisons</b>. Deux fonctions que l'audit listait comme absentes.</p>
+          </div>
+          <div class="panel acc">
+            <h4>De 2 à 4 rôles</h4>
+            <p>Client · Commercial · Exploitation · Admin. Le booléen <code class="k">admin</code> ne peut pas porter ça — c'est la cause de <span class="ref">D-09</span>.</p>
+          </div>
+        </div>
+        <div class="rule-x"></div>
+        <div class="panel">
+          <h4>Ce que j'ai explicitement écarté</h4>
+          <p>
+            Notifications, export comptable, réinitialisation autonome du mot de passe,
+            suivi géolocalisé. <b>Aucun n'est dans la fiche.</b> C'est une refonte, pas un
+            produit nouveau — et un périmètre qu'on ne borne pas est un projet qui dérape.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide top" data-time="1:10">
+      <div class="eyebrow"><span class="n">13</span><span>Architecture applicative</span><span class="bar"></span></div>
+      <h2>Trois tiers, et une couche qui manquait</h2>
+      <div class="body">
+        <div class="cols c2">
+          <div>
+            <div class="flow" style="flex-direction:column;gap:8px">
+              <div class="step" style="width:100%"><span class="lbl">Couche web — @RestController</span><span class="txt">Routes REST, sérialisation, validation de format. <b>Aucune règle métier.</b></span></div>
+              <div class="arrow">↓</div>
+              <div class="step" style="width:100%;border-color:var(--ok)"><span class="lbl" style="color:var(--ok)">Couche service — @Service ← NOUVEAU</span><span class="txt">Règles métier, transitions de statut, visibilité par rôle, transactions. <b>Ne connaît ni HTTP ni JSON : testable sans serveur.</b></span></div>
+              <div class="arrow">↓</div>
+              <div class="step" style="width:100%"><span class="lbl">Repository — Spring Data JPA</span><span class="txt">Interfaces, donc substituables en test. Requêtes paginées.</span></div>
+              <div class="arrow">↓</div>
+              <div class="step" style="width:100%"><span class="lbl">PostgreSQL 18</span><span class="txt">Contraintes d'intégrité — dernier rempart.</span></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <div class="panel acc">
+              <h4>Le choix d'architecture</h4>
+              <p><b>Monolithe modulaire</b>, découpé par domaine métier et non par couche technique.</p>
+            </div>
+            <div class="panel crit">
+              <h4>Microservices — écarté</h4>
+              <p>Six entités, une équipe réduite, <b>aucune équipe plateforme</b>. Le coût distribué dépasserait le bénéfice, et ne traiterait aucun des trois risques.</p>
+            </div>
+            <div class="panel ok">
+              <h4>Ce que ça préserve</h4>
+              <p>Les frontières de domaine sont tracées. Si la facturation doit être extraite un jour, la découpe existe déjà.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide top" data-time="1:10">
+      <div class="eyebrow"><span class="n">14</span><span>Architecture opérationnelle</span><span class="bar"></span></div>
+      <h2>Trois conteneurs, deux réseaux</h2>
+      <p class="sub">
+        La fiche précise que <b>l'hébergeur n'est pas encore choisi</b>. C'est exactement
+        ce à quoi Docker répond.
+      </p>
+      <div class="body">
+        <div class="cols c3">
+          <div class="panel">
+            <h4>livrai-front</h4>
+            <div class="big">Nginx + Angular</div>
+            <p>Sert la SPA compilée, relaie <code class="k">/api</code>. <b>Seul conteneur exposé.</b></p>
+          </div>
+          <div class="panel ok">
+            <h4>livrai-api ×N</h4>
+            <div class="big">Spring Boot</div>
+            <p>Sans état : <b>toute instance traite toute requête</b>. C'est ce qui absorbe les pics.</p>
+          </div>
+          <div class="panel">
+            <h4>livrai-db</h4>
+            <div class="big">PostgreSQL 18</div>
+            <p>Réseau interne uniquement, <b>jamais joignable de l'extérieur</b>. Volume persistant.</p>
+          </div>
+        </div>
+        <div class="rule-x"></div>
+        <div class="cols c2">
+          <div class="panel acc">
+            <h4>Télémétrie — la leçon de D-03</h4>
+            <p>La panne arrivait avant toute limite matérielle. Surveiller la machine n'aurait rien vu. Premier indicateur : <b>taux d'occupation du pool de connexions</b>, alerte à 80 %.</p>
+          </div>
+          <div class="panel">
+            <h4>Et aussi</h4>
+            <p>Journaux structurés JSON, sondes de santé, temps de réponse au 95<sup>e</sup> centile, taux de 5xx. L'existant n'avait <b>aucune journalisation</b>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide top" data-time="1:05">
+      <div class="eyebrow"><span class="n">15</span><span>Modèle de données</span><span class="bar"></span></div>
+      <h2>De 2 tables à 7 — et pourquoi chacune</h2>
+      <div class="body">
+        <table class="t">
+          <thead>
+            <tr><th style="width:26%">Existant</th><th style="width:30%">Cible</th><th>Le constat qui l'impose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="k">user.admin BOOLEAN</code></td><td><code class="k">app_user.role</code> — énum 4 valeurs</td><td><span class="ref crit">D-09</span> Un booléen ne porte pas quatre rôles</td></tr>
+            <tr><td><code class="k">user</code> = compte <b>et</b> client</td><td><code class="k">customer</code> + <code class="k">customer_account</code></td><td>Fiche : plusieurs personnes par entreprise cliente</td></tr>
+            <tr><td><code class="k">status VARCHAR(255)</code> en français</td><td>Type <code class="k">delivery_status</code></td><td><span class="ref crit">D-14</span> Faute de frappe = état invalide silencieux</td></tr>
+            <tr><td><code class="k">volume INT</code></td><td><code class="k">NUMERIC CHECK &gt; 0</code></td><td><span class="ref crit">D-10</span> <code class="k">-99</code> était accepté et facturable</td></tr>
+            <tr><td><code class="k">price</code> sur la livraison</td><td><code class="k">invoice</code> + <code class="k">invoice_line</code></td><td>Fiche : gestion de la facturation</td></tr>
+            <tr><td>Aucune trace des actions</td><td><code class="k">delivery_status_history</code></td><td>Audit : « qui a facturé quoi, et quand »</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide top" data-time="1:00">
+      <div class="eyebrow"><span class="n">16</span><span>Livrables — vérification</span><span class="bar"></span></div>
+      <h2>Les scripts SQL ont réellement tourné</h2>
+      <p class="sub">
+        Exécutés sur un vrai PostgreSQL 18 en conteneur, pas seulement écrits.
+      </p>
+      <div class="body">
+        <div class="cols c2">
+          <div class="panel crit">
+            <h4>Test 1 — le scénario D-10</h4>
+            <p style="font-family:var(--mono);font-size:11.5px;line-height:1.5">
+              <b>INSERT</b> volume <code class="k">-99</code>, poids <code class="k">-50</code><br>
+              → <span style="color:var(--crit)">ERROR: violates check constraint<br>"ck_delivery_volume_positive"</span>
+            </p>
+            <p>La saisie que l'application acceptait, stockait et rendait facturable est désormais <b>impossible au niveau du stockage</b>.</p>
+          </div>
+          <div class="panel crit">
+            <h4>Test 2 — double facturation</h4>
+            <p style="font-family:var(--mono);font-size:11.5px;line-height:1.5">
+              <b>INSERT</b> même livraison sur 2 factures<br>
+              → <span style="color:var(--crit)">ERROR: duplicate key violates<br>"uq_invoice_line_delivery"</span>
+            </p>
+            <p>Une règle comptable portée par la base, et non par la vigilance du code.</p>
+          </div>
+        </div>
+        <div class="rule-x"></div>
+        <div class="stat-row">
+          <div class="stat is-ok"><div class="v">7</div><div class="k">tables créées</div><div class="note">Types énumérés, contraintes, 9 index, déclencheurs.</div></div>
+          <div class="stat is-ok"><div class="v">4</div><div class="k">rôles seedés</div><div class="note">8 comptes, 3 entreprises, 6 livraisons.</div></div>
+          <div class="stat is-ok"><div class="v">6</div><div class="k">statuts couverts</div><div class="note">Tout le cycle de vie, journal compris.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide top" data-time="1:20">
+      <div class="eyebrow"><span class="n">17</span><span>Arbitrages</span><span class="bar"></span></div>
+      <h2>Trois décisions que j'assume, et leur prix</h2>
+      <p class="sub">
+        Une architecture n'est jamais « bonne » dans l'absolu : elle arbitre entre des
+        qualités qui s'opposent.
+      </p>
+      <div class="body">
+        <ul class="pts">
+          <li><span class="mk">ADR-03</span><span><b>JWT plutôt que session partagée.</b> Le coût : un jeton ne se révoque pas avant expiration — désactiver un compte n'est pas immédiat. Je le borne à 15 minutes avec un jeton de rafraîchissement. L'alternative Redis supprimerait ce défaut mais réintroduirait un composant à état à exploiter.</span></li>
+          <li><span class="mk">ADR-09</span><span><b>Signaux Angular plutôt que NgRx.</b> L'énoncé l'encourage ; je l'écarte. Redux impose actions, réducteurs et effets pour chaque interaction — sur un état de cette taille, la cérémonie dépasse le bénéfice. L'état étant isolé par domaine, la décision reste réversible.</span></li>
+          <li><span class="mk">—</span><span><b>« Gérer certains clients » : tout commercial voit tout.</b> La fiche suggère une affectation nominative. À 150 employés et quelques commerciaux qui travaillent en commun, ce serait une cloison interne coûteuse pour un problème qui n'existe pas. Je le note en hors périmètre, et la règle vivant dans la couche service, l'ajouter plus tard resterait localisé.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide top" data-time="1:15">
+      <div class="eyebrow"><span class="n">18</span><span>Conclusion</span><span class="bar"></span></div>
+      <h2>Ce que je livre, et ce qui reste ouvert</h2>
+      <div class="body">
+        <div class="cols c2">
+          <div class="panel ok">
+            <h4>Livré</h4>
+            <p>
+              <b>Rapport d'audit</b> — 14 déficiences, 6 points forts, mesures en fonctionnement.<br>
+              <b>Document d'architecture</b> — contexte, fonctionnel, technique, modèle de données, 10 ADR.<br>
+              <b>Scripts PostgreSQL</b> — schéma, seed, exécutés et vérifiés.
+            </p>
+          </div>
+          <div class="panel warn">
+            <h4>Volontairement non tranché</h4>
+            <p>
+              <b>Haute disponibilité de la base</b> — dépend de l'hébergeur, non choisi.<br>
+              <b>Reprise des données</b> — les mots de passe en clair ne sont pas migrables : tous les utilisateurs devront en redéfinir un.<br>
+              <b>Test de charge</b> — à mener avant mise en service.
+            </p>
+          </div>
+        </div>
+        <div class="rule-x"></div>
+        <div class="quote">
+          Les difficultés de LiVrai ne traduisent pas un défaut de réalisation, mais
+          l'écart entre l'échelle pour laquelle l'application a été conçue et celle que
+          l'entreprise atteint aujourd'hui.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <aside class="rail">
+    <div class="progress" id="progress"></div>
+    <div class="notes" id="notes"></div>
+    <div class="hint">
+      <kbd>←</kbd> <kbd>→</kbd> naviguer · <kbd>P</kbd> tout afficher · <kbd>T</kbd> chrono
+    </div>
+  </aside>
+</div>
+
+<script>
+const NOTES = [
+  {
+    time: "0:35",
+    say: [
+      "Bonjour, je suis Carole Fourny-Manassevitz. Je vous présente aujourd'hui un projet en deux temps pour la société LiVrai : d'abord <b>l'audit</b> de leur CRM existant, ensuite la <b>conception de l'architecture cible</b> de sa refonte.",
+      "Ces deux exercices sont liés par une règle que je vais suivre tout au long de cette présentation : <b>chaque décision d'architecture que je propose devra descendre d'un constat mesuré dans l'audit</b>."
+    ],
+    cue: "Posture",
+    warn: "Respire. Cette diapo ne dure que 45 secondes — ne t'attarde pas, le jury veut du contenu."
+  },
+  {
+    time: "0:50",
+    say: [
+      "LiVrai est une société de <b>150 employés</b> qui livre des marchandises en grande quantité pour des professionnels. Leur CRM interne gère tout le cycle de vie d'une commande, de la prise de commande à la facturation.",
+      "Meilin, leur chef de projet, m'a transmis <b>trois signaux</b>. Et le premier travail d'un auditeur, c'est de comprendre qu'ils ne sont pas de même nature.",
+      "Les deux premiers — les lenteurs, la maintenance difficile — sont <b>constatés</b> : les équipes les vivent. Le troisième, la disponibilité en cas de pic, est <b>anticipé</b> : aucun incident n'a encore eu lieu."
+    ],
+    cue: "Point clé",
+    warn: "<b>C'est ta transition vers la diapo suivante.</b> Insiste sur « aucun incident n'a encore eu lieu » — c'est ce qui justifie ta méthode."
+  },
+  {
+    time: "0:45",
+    say: [
+      "Cette distinction gouverne toute ma méthode. Pour un problème <b>constaté</b>, je remonte du symptôme vers sa cause dans le code. Pour un risque <b>anticipé</b>, rien n'est observable : je pars de l'architecture et je construis un scénario de rupture.",
+      "Et puis il y a un point que beaucoup d'audits sautent, et qui a changé la moitié de mes constats : <b>j'ai déployé l'application et je l'ai parcourue</b>. MySQL en conteneur, Tomcat, le WAR déployé, et j'ai exercé les deux profils utilisateurs sur tous les parcours."
+    ],
+    cue: "À dire absolument",
+    warn: "« <b>Lire le code donne des hypothèses. L'exécuter donne des preuves.</b> » — c'est la phrase qui te distingue. Trois de mes constats sont passés de « supposé » à « démontré » grâce à ça."
+  },
+  {
+    time: "1:00",
+    say: [
+      "Techniquement : une application Java monolithique, servlets et JSP, accès JDBC direct. <b>Aucun framework</b> — ni Spring, ni Hibernate. Tout est écrit à la main.",
+      "Treize classes, sept cents lignes. C'est petit, et c'est en réalité un <b>avantage</b> : tout est analysable.",
+      "Mais regardez les deux autres chiffres : <b>zéro test</b> et <b>zéro couche service</b>. La logique métier vit dans les servlets.",
+      "Le schéma du bas suit une requête. Deux points à remarquer : le filtre d'authentification fait <b>une requête SQL à chaque appel HTTP</b>, même pour une image. Et le servlet instancie ses DAO à la main avec <code>new</code> — ce détail explique pourquoi ce code est intestable."
+    ],
+    cue: "Rythme",
+    warn: "Ne détaille pas les 5 étapes du flux. Pointe le filtre, pointe le <code>new UserDao()</code>, et avance."
+  },
+  {
+    time: "0:50",
+    say: [
+      "Avant les problèmes, ce qui est sain. Un audit qui ne voit que le négatif, personne ne s'en sert — et surtout, ces acquis sont ce qu'on <b>garde</b>.",
+      "Toutes les requêtes sont paramétrées : <b>aucune injection SQL possible</b>. C'est la faille la plus répandue de cette génération d'applications, et elle a été évitée.",
+      "Le modèle de données est propre et normalisé : je le réutilise dans la cible. Et les vues échappent systématiquement le HTML : pas d'injection de script non plus.",
+      "Ces choix relèvent d'une <b>vraie rigueur</b> de la part de l'équipe qui a écrit ce code."
+    ],
+    cue: "Ton",
+    warn: "<b>Ne méprise jamais l'existant.</b> Une architecte qui arrive en disant « c'est nul » se trompe de métier. Ce code fonctionne et rend service depuis des années."
+  },
+  {
+    time: "1:05",
+    say: [
+      "Voici la mesure qui porte tout mon rapport.",
+      "Tomcat est configuré à <b>150 threads maximum</b>. MySQL accepte <b>151 connexions</b>. Or chaque thread retient une connexion qu'il ne referme jamais — je l'ai vérifié : après une simple session de test, <b>60 connexions dormantes</b>, la plus ancienne depuis près de 15 minutes.",
+      "Donc à pleine charge : 150 connexions ouvertes pour 151 autorisées. <b>La marge est d'une seule connexion.</b>",
+      "Et le point le plus important pour le jury : cette panne survient <b>avant</b> toute saturation du processeur ou de la mémoire. Une supervision classique, qui surveille la machine, ne la voit pas venir."
+    ],
+    cue: "Temps fort",
+    warn: "<b>C'est ton meilleur moment.</b> Ralentis. Laisse un silence après « la marge est d'une seule connexion ». Une mesure bien choisie vaut dix paragraphes."
+  },
+  {
+    time: "0:55",
+    say: [
+      "Deuxième mesure. L'écran principal charge <b>toute</b> la table des livraisons, sans limite, à chaque affichage.",
+      "J'ai injecté 20 004 livraisons en base et j'ai appelé l'écran : <b>15,6 mégaoctets</b>, plus de 20 000 lignes de tableau envoyées au navigateur. La même page avec 4 livraisons pèse 3 kilooctets.",
+      "Ce qu'il faut retenir, et c'est ce que je dirais au dirigeant : cette dégradation est <b>linéaire, sans palier, et indépendante du nombre d'utilisateurs</b>. Elle empire avec le seul historique — que LiVrai accumule par construction.",
+      "Autrement dit : <b>plus l'entreprise réussit, plus l'application ralentit.</b>"
+    ],
+    cue: "Traduction métier",
+    warn: "La dernière phrase est ta formule-choc. « 15,6 Mo » ne parle pas à un décideur ; « plus vous réussissez, plus ça ralentit », si."
+  },
+  {
+    time: "1:10",
+    say: [
+      "Trois failles, et je souligne : <b>toutes reproduites sur l'application en fonctionnement</b>.",
+      "Avec un compte <b>client</b> ordinaire, j'ai appelé la page <code>/clients</code>. J'ai obtenu <b>la liste complète des clients de LiVrai avec leurs adresses email</b> — potentiellement des concurrents entre eux. Et j'ai pu créer un utilisateur. Fuite de données doublée d'une élévation de privilège.",
+      "J'ai créé deux comptes puis relu la table : <b>les mots de passe sont en clair</b>. Ça dépasse le technique — ça engage la responsabilité RGPD de LiVrai.",
+      "J'ai commandé une livraison de volume <b>-99</b> : acceptée, stockée, affichée à l'administrateur, et facturable.",
+      "Et le bouton « Refuser » une commande : <b>il ne fonctionne pas</b>. 405, le statut ne change jamais."
+    ],
+    cue: "Nature du défaut",
+    warn: "Précise que les deux derniers (<span class='ref'>D-09</span>, <span class='ref'>UX-06</span>) sont <b>corrigeables tout de suite, sans attendre la refonte</b>. Distinguer les trois natures de problèmes — immédiat, structurel, obsolescence — est une compétence d'architecte."
+  },
+  {
+    time: "0:50",
+    say: [
+      "J'ai relevé quatorze déficiences. Trois commandent la décision.",
+      "Premièrement : <b>le service ne peut pas être répliqué</b>. L'identité est stockée en mémoire du serveur. Ajouter un serveur derrière un répartiteur déconnecte l'utilisateur en pleine saisie. LiVrai ne peut donc ni absorber un pic, ni supprimer son point de défaillance unique.",
+      "Deuxièmement, la saturation à une connexion près. Troisièmement, la dégradation sans palier.",
+      "Et transversalement : l'absence de tests ne provoque aucune panne, mais elle rend la correction des trois autres <b>coûteuse et risquée</b>. C'est ce qui transforme un problème technique en problème de trajectoire."
+    ],
+    cue: "Conclusion d'audit",
+    warn: "Le commanditaire doit <b>retrouver ses mots</b> dans ta conclusion : lenteurs → confirmé, maintenance → confirmé, disponibilité → risque avéré."
+  },
+  {
+    time: "1:00",
+    say: [
+      "Avant de passer à la cible, je veux nommer la frontière que je me suis imposée.",
+      "Un audit <b>qualifie les problèmes assez précisément pour que la solution devienne évidente — sans jamais l'écrire</b>. « Le service ne peut pas être répliqué » est un constat. « Il faut passer aux jetons JWT » est une décision qui ne m'appartenait pas à ce stade.",
+      "Dans le vocabulaire TOGAF, l'audit correspond à la phase B : il établit la <b>baseline</b>. La cible et l'analyse d'écart viennent après.",
+      "Et pour l'exercice 2, il y a un renversement qu'il faut expliciter : <b>la stack m'est imposée</b> par le client — Java, Angular, PostgreSQL, Docker. Mon travail n'est donc pas de la choisir, mais de <b>justifier qu'elle répond aux constats</b>, et de nommer ce qu'elle coûte."
+    ],
+    cue: "Si on te pousse sur TOGAF",
+    qa: "<b>« Vous avez appliqué TOGAF ? »</b> Non — et c'est délibéré. TOGAF pilote la transformation d'un SI entier avec une gouvernance. Le dérouler sur un CRM de treize classes serait une erreur de proportion. J'en emprunte le vocabulaire baseline / target, pas la méthode."
+  },
+  {
+    time: "1:10",
+    say: [
+      "Voici le cœur de mon document d'architecture : la traçabilité.",
+      "Chaque ligne se lit de gauche à droite — <b>un constat mesuré, puis l'objectif qu'il impose</b>. Jamais l'inverse, et jamais de « moderniser l'application » sans référence.",
+      "La session en mémoire impose un back-end <b>sans état</b> : c'est ce qui rend N instances interchangeables et lève le verrou de la disponibilité.",
+      "Les 150 connexions imposent un <b>pool borné</b>. Les 15,6 Mo imposent la <b>pagination</b> — et je l'ai mise dans le contrat d'API, pas en optimisation ultérieure. La logique dans les servlets impose une <b>couche service</b>. Le socle mort impose un socle supporté et une API réutilisable.",
+      "Les quatre objectifs demandés par Meilin — performance, disponibilité, maintenabilité, évolutivité — sont tous couverts, et chacun par un constat chiffré."
+    ],
+    cue: "Diapo pivot",
+    warn: "<b>C'est la diapo la plus importante des deux exercices.</b> Prends tes deux minutes. Si le jury ne retient qu'une chose, c'est celle-ci."
+  },
+  {
+    time: "1:00",
+    say: [
+      "Le périmètre cible, maintenant. Et il y a un point que la fiche descriptive m'a appris, et que l'audit seul ne disait pas : <b>ce n'est pas qu'une modernisation technique, c'est un changement de modèle opératoire</b>.",
+      "Aujourd'hui, le service commercial crée chaque compte et réserve chaque livraison. Avec la croissance, il devient un <b>goulot d'étranglement</b>. La refonte rend les clients autonomes — tout en gardant la voie commerciale pour les clients qui la préfèrent. Les deux coexistent.",
+      "La fiche exige aussi deux fonctions que l'audit listait comme absentes : la <b>facturation</b> et l'<b>historique</b>.",
+      "Et on passe de deux à <b>quatre rôles</b>. Un simple booléen ne peut pas porter ça — c'est précisément la cause de la fuite de données que j'ai démontrée."
+    ],
+    cue: "Périmètre",
+    warn: "Insiste sur ce que tu as <b>écarté</b>. Un candidat qui borne son périmètre rassure ; un candidat qui accepte tout inquiète."
+  },
+  {
+    time: "1:10",
+    say: [
+      "L'architecture applicative. À gauche, les quatre couches — et la nouveauté, c'est celle du milieu.",
+      "La <b>couche service</b> porte les règles métier : les transitions de statut, la visibilité selon le rôle, les transactions. Et surtout, <b>elle ne connaît ni HTTP ni JSON</b>. C'est ça qui la rend testable sans démarrer un serveur — ce qui était strictement impossible dans l'existant.",
+      "À droite, mon choix de famille d'architecture : un <b>monolithe modulaire</b>, découpé par domaine métier et non par couche technique.",
+      "J'ai écarté les microservices, et je veux être explicite sur le raisonnement : le problème de LiVrai n'est pas la taille de son domaine — six entités — mais l'absence de séparation et l'état en mémoire. Découper en microservices ajouterait une complexité distribuée <b>sans traiter aucun des trois risques</b>. Et LiVrai n'a aucune équipe plateforme pour l'exploiter."
+    ],
+    cue: "Question quasi certaine",
+    qa: "<b>« Pourquoi pas des microservices ? »</b> Exactement le raisonnement ci-dessus. Et ajoute : le monolithe est <b>modulaire</b>, les frontières de domaine sont tracées. Si la facturation doit être extraite un jour, la découpe existe déjà. Un choix réversible vaut mieux qu'un choix ambitieux."
+  },
+  {
+    time: "1:10",
+    say: [
+      "L'architecture opérationnelle. Trois conteneurs.",
+      "Le front, servi par Nginx — <b>le seul exposé à l'extérieur</b>. L'API Spring Boot, <b>répliquée en N instances</b> : c'est elle qui absorbe les pics, et elle ne le peut que parce qu'elle est sans état. Et la base, sur un réseau interne, <b>jamais joignable de l'extérieur</b>.",
+      "Un mot sur pourquoi Docker, au-delà du fait qu'il soit imposé : la fiche précise que <b>l'hébergeur n'est pas encore choisi</b>. La conteneurisation rend justement l'application indépendante de son hébergeur. Et elle corrige un défaut que j'avais relevé : aujourd'hui, changer d'environnement oblige à <b>recompiler</b>, parce que les identifiants de base sont codés en dur dans le source.",
+      "Pour la télémétrie, j'ai tiré une leçon directe de l'audit : puisque la panne arrive <b>avant</b> toute limite matérielle, surveiller la machine ne suffit pas. Mon premier indicateur est le <b>taux d'occupation du pool de connexions</b>."
+    ],
+    cue: "Piège à éviter",
+    warn: "Ne te contente pas de <b>citer</b> Docker. L'énoncé le dit explicitement : il faut expliquer <b>à quoi il sert dans ta proposition</b>. L'argument « hébergeur non choisi » vient de la fiche — utilise-le."
+  },
+  {
+    time: "1:05",
+    say: [
+      "Le modèle de données. Deux tables deviennent sept, et chaque ligne de ce tableau porte sa justification.",
+      "Le booléen <code>admin</code> devient un type énuméré à quatre valeurs : c'est la correction structurelle de la fuite de données.",
+      "L'existant confondait <b>le compte de connexion et l'entreprise cliente</b>. Je les sépare, parce que la fiche prévoit que plusieurs personnes d'une même entreprise se connectent.",
+      "Le statut était un <code>VARCHAR</code> contenant du français accentué, comparé par égalité de chaînes jusque dans les pages JSP. Une faute de frappe créait un état invalide silencieux. Il devient un <b>type énuméré</b>.",
+      "Et j'ajoute une table d'<b>historique des changements de statut</b> : qui a accepté, refusé, facturé, et quand. L'audit avait relevé qu'aucune trace n'existait."
+    ],
+    cue: "Si on te reproche de trop t'éloigner",
+    qa: "<b>« Vous n'avez pas gardé le modèle existant ? »</b> Si — je le qualifie de sain et réutilisable dans l'audit, c'est mon point fort <span class='ref'>F-03</span>. Les sept tables en sont l'<b>évolution</b> : je garde la normalisation, les clés étrangères, le DECIMAL sur les montants. J'ajoute ce que le nouveau périmètre exige."
+  },
+  {
+    time: "1:00",
+    say: [
+      "Un point sur lequel je veux être précise : je n'ai pas seulement <b>écrit</b> ces scripts, je les ai <b>exécutés</b> sur un vrai PostgreSQL 18 en conteneur.",
+      "Et j'ai testé que les contraintes font ce qu'elles promettent. J'ai rejoué le scénario exact que j'avais démontré dans l'audit — insérer un volume de -99. La base le <b>refuse</b>.",
+      "C'est le point que je trouve le plus satisfaisant du projet : le défaut que j'ai constaté en exerçant l'application est maintenant <b>structurellement impossible</b>, et pas seulement corrigé dans le code. Même un script de reprise ou une correction manuelle ne pourrait pas créer cet état.",
+      "Idem pour la double facturation d'une même livraison : rejetée par une contrainte d'unicité."
+    ],
+    cue: "Valorise",
+    warn: "Peu de candidats exécutent leurs scripts. C'est un <b>différenciateur</b> — dis-le simplement, sans en faire trop."
+  },
+  {
+    time: "1:20",
+    say: [
+      "Trois arbitrages, parce qu'<b>une architecture n'est jamais bonne dans l'absolu</b> : elle arbitre entre des qualités qui s'opposent. Et une architecte qui ne nomme pas le prix de ce qu'elle préconise vend du rêve.",
+      "Le JWT me donne l'absence d'état, donc la réplication. <b>Mais un jeton ne se révoque pas avant son expiration</b> : désactiver un compte n'est pas immédiat. Je le borne à quinze minutes.",
+      "NgRx est encouragé par l'énoncé, et je l'écarte. Le patron Redux impose actions, réducteurs et effets pour chaque interaction. Sur un état de cette taille, <b>la cérémonie dépasse le bénéfice</b>. Et comme l'état est isolé par domaine, la décision reste réversible.",
+      "Enfin, la fiche dit que le commercial gère « certains clients ». J'ai tranché : <b>tout commercial voit tout le portefeuille</b>. À 150 employés, cloisonner une équipe qui travaille en commun coûterait une complexité permanente pour un problème qui n'existe pas. Je le note en hors périmètre plutôt que de l'ignorer."
+    ],
+    cue: "Question probable",
+    qa: "<b>« Pourquoi pas NgRx, c'était recommandé ? »</b> Parce que recommandé n'est pas imposé, et qu'un pattern excellent à grande échelle est de la sur-ingénierie à petite échelle. J'ai nommé la condition qui me ferait changer d'avis : si l'état partagé devenait complexe, l'introduction resterait localisée."
+  },
+  {
+    time: "1:15",
+    say: [
+      "Pour conclure. Je livre trois documents : le rapport d'audit, le document d'architecture avec ses dix décisions tracées, et les scripts PostgreSQL vérifiés.",
+      "Et je tiens à nommer ce que je n'ai <b>pas</b> tranché, parce que les taire serait une faute : la haute disponibilité de la base dépend de l'hébergeur, qui n'est pas choisi. La reprise des données est un chantier distinct — et j'attire l'attention sur un point sensible : <b>les mots de passe étant stockés en clair, ils ne sont pas migrables</b>. Tous les utilisateurs devront en redéfinir un le jour de la bascule. Enfin, le test de charge reste à mener.",
+      "Un dernier mot sur l'état d'esprit. Les difficultés de LiVrai ne traduisent pas un défaut de réalisation. Elles traduisent <b>l'écart entre l'échelle pour laquelle l'application a été conçue, et celle que l'entreprise atteint aujourd'hui</b>.",
+      "Je vous remercie, et je suis à votre disposition pour vos questions."
+    ],
+    cue: "Dernière impression",
+    warn: "Termine sur la phrase de l'écart — elle montre que tu respectes le travail existant. Puis <b>tais-toi et souris</b>. Ne meuble pas."
+  }
+];
+
+const slides = Array.from(document.querySelectorAll('.slide'));
+const notesEl = document.getElementById('notes');
+const counterEl = document.getElementById('counter');
+const progressEl = document.getElementById('progress');
+let idx = 0;
+let showAll = false;
+
+slides.forEach((_, i) => {
+  const tick = document.createElement('i');
+  tick.addEventListener('click', () => { showAll = false; go(i); });
+  progressEl.appendChild(tick);
+});
+const ticks = Array.from(progressEl.children);
+
+function renderNotes(i) {
+  const n = NOTES[i];
+  if (!n) { notesEl.innerHTML = ''; return; }
+  let html = '<div class="notes-head"><span class="t">Notes — diapo ' +
+    String(i + 1).padStart(2, '0') + '</span><span class="time">' + n.time + '</span></div>';
+  n.say.forEach(p => { html += '<p class="say">' + p + '</p>'; });
+  if (n.cue) html += '<div class="cue">' + n.cue + '</div>';
+  if (n.warn) html += '<div class="warnbox">' + n.warn + '</div>';
+  if (n.qa) html += '<div class="qa">' + n.qa + '</div>';
+  notesEl.innerHTML = html;
+  notesEl.scrollTop = 0;
+}
+
+function go(i) {
+  idx = Math.max(0, Math.min(slides.length - 1, i));
+  if (showAll) {
+    slides.forEach(s => s.classList.remove('hidden'));
+  } else {
+    slides.forEach((s, k) => s.classList.toggle('hidden', k !== idx));
+  }
+  counterEl.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+  ticks.forEach((t, k) => {
+    t.className = k === idx ? 'now' : (k < idx ? 'done' : '');
+  });
+  renderNotes(idx);
+  if (showAll) slides[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') { showAll = false; go(idx + 1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { showAll = false; go(idx - 1); }
+  else if (e.key === 'Home') { showAll = false; go(0); }
+  else if (e.key === 'End') { showAll = false; go(slides.length - 1); }
+  else if (e.key.toLowerCase() === 'p') { toggleAll(); }
+  else if (e.key.toLowerCase() === 't') { toggleTimer(); }
+});
+
+const allBtn = document.getElementById('allBtn');
+function toggleAll() {
+  showAll = !showAll;
+  allBtn.textContent = showAll ? 'Mode diapo' : 'Tout afficher';
+  go(idx);
+}
+allBtn.addEventListener('click', toggleAll);
+
+const clockEl = document.getElementById('clock');
+const timerBtn = document.getElementById('timerBtn');
+let t0 = null, tick = null;
+function toggleTimer() {
+  if (tick) {
+    clearInterval(tick); tick = null; timerBtn.textContent = 'Reprendre';
+  } else {
+    if (t0 === null) t0 = Date.now();
+    else t0 = Date.now() - elapsed * 1000;
+    tick = setInterval(update, 250);
+    timerBtn.textContent = 'Pause';
+  }
+}
+let elapsed = 0;
+function update() {
+  elapsed = Math.floor((Date.now() - t0) / 1000);
+  const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const s = String(elapsed % 60).padStart(2, '0');
+  clockEl.textContent = m + ':' + s;
+  clockEl.style.color = elapsed > 1200 ? 'var(--crit)' : (elapsed > 900 ? 'var(--warn)' : 'var(--ink-soft)');
+}
+timerBtn.addEventListener('click', toggleTimer);
+
+go(0);
+</script>
