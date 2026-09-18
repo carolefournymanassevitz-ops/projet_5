@@ -42,4 +42,23 @@ psql -U livrai -d livrai -f 02-seed.sql   # développement seulement
 | D-10 volume `-99` accepté | `CHECK (volume_m3 > 0)`, `CHECK (weight_kg > 0)` |
 | D-14 statuts en texte libre français | Types `delivery_status` / `invoice_status` |
 | D-04 aucun index sur `status` | `idx_delivery_status_created`, index partiel `idx_delivery_pending` |
-| Absence de traçabilité | Table `delivery_status_history` |
+| Absence de traçabilité des statuts | Table `delivery_status_history` |
+
+## Choix de conception assumé — facture et livraison non reliées
+
+`invoice_line` ne porte **pas** de clé étrangère vers `delivery`. La livraison
+facturée est désignée en clair dans `invoice_line.label`.
+
+Ce choix supprime le chemin circulaire
+`customer → delivery → invoice_line → invoice → customer` et allège le schéma.
+
+Il a un coût, à connaître et à pouvoir défendre :
+
+- aucune requête ne reconstitue les livraisons d'une facture ;
+- **rien n'empêche plus de facturer deux fois la même livraison** — ce contrôle,
+  auparavant garanti par une contrainte `UNIQUE`, doit être implémenté dans la
+  couche service ;
+- le rapprochement facture ↔ livraison repose sur du texte non vérifiable.
+
+Si la traçabilité comptable devenait nécessaire, il faudrait réintroduire
+`invoice_line.delivery_id` avec sa contrainte d'unicité.

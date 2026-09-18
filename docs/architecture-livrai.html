@@ -1548,89 +1548,117 @@ Authorization: Bearer &lt;jwt&gt;
 
 <figure>
 <div class="dw">
-<svg viewBox="0 0 740 560" role="img" aria-label="Diagramme de composants UML de l'architecture opérationnelle Docker">
+<svg viewBox="0 0 760 660" role="img" aria-label="Diagramme de composants UML de l'architecture opérationnelle Docker : trois conteneurs répartis sur deux réseaux, avec le parcours numéroté d'une requête">
   <defs>
     <marker id="arD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="uml-fill"/>
     </marker>
+    <marker id="arDx" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" style="fill:var(--ink-faint)"/>
+    </marker>
   </defs>
 
-  <!-- Navigateur -->
-  <rect class="uml-box" x="292" y="14" width="160" height="44" rx="4"/>
-  <text class="uml-t stereo" x="372" y="32" text-anchor="middle">«device»</text>
-  <text class="uml-t name" x="372" y="49" text-anchor="middle">Navigateur</text>
+  <!-- ============ Poste client, hors hôte ============ -->
+  <rect class="uml-box" x="286" y="12" width="188" height="48" rx="4"/>
+  <text class="uml-t stereo" x="380" y="30" text-anchor="middle">«device»</text>
+  <text class="uml-t name" x="380" y="47" text-anchor="middle">Navigateur — poste client</text>
 
-  <line x1="372" y1="58" x2="372" y2="88" class="uml-l" marker-end="url(#arD)"/>
-  <text class="uml-t tiny" x="382" y="78">HTTPS : 443</text>
+  <!-- Flux 1 : navigateur -> front -->
+  <line x1="380" y1="60" x2="380" y2="122" class="uml-l" marker-end="url(#arD)"/>
+  <circle cx="362" cy="88" r="9" style="fill:var(--accent)"/>
+  <text x="362" y="92" text-anchor="middle" style="font-family:ui-monospace,Menlo,monospace;font-size:10px;fill:#fff;font-weight:700">1</text>
+  <text class="uml-t tiny" x="392" y="84">HTTPS</text>
+  <text class="uml-t tiny" x="392" y="97">443 → 8443</text>
 
-  <!-- Hôte Docker -->
-  <rect class="grp" x="30" y="92" width="680" height="404" rx="6"/>
-  <text class="uml-t small" x="44" y="112">«execution environment» Hôte Docker — hébergeur non arrêté</text>
+  <!-- ============ Hôte Docker ============ -->
+  <rect class="grp" x="24" y="104" width="712" height="474" rx="6"/>
+  <text class="uml-t small" x="38" y="124">«execution environment» Hôte Docker — hébergeur non arrêté (ADR-08)</text>
 
-  <!-- Réseau front -->
-  <rect class="grp" x="48" y="122" width="644" height="126" rx="5"/>
-  <text class="uml-t tiny" x="60" y="138">réseau : livrai-public</text>
+  <!-- ---- Réseau public ---- -->
+  <rect class="grp" x="42" y="134" width="676" height="122" rx="5" style="stroke:var(--accent)"/>
+  <text class="uml-t tiny" x="54" y="150" style="fill:var(--accent)">réseau « livrai-public » — seul réseau joignable de l'extérieur</text>
 
-  <rect class="uml-hdr" x="240" y="146" width="264" height="86" rx="4"/>
-  <text class="uml-t stereo" x="372" y="166" text-anchor="middle">«container» livrai-front</text>
-  <text class="uml-t name" x="372" y="185" text-anchor="middle">Nginx + Angular 22</text>
-  <text class="uml-t tiny" x="256" y="204">· sert les fichiers statiques compilés</text>
-  <text class="uml-t tiny" x="256" y="219">· relaie /api vers livrai-api</text>
+  <rect class="uml-hdr" x="232" y="158" width="296" height="84" rx="4"/>
+  <text class="uml-t stereo" x="380" y="176" text-anchor="middle">«container» livrai-front</text>
+  <text class="uml-t name" x="380" y="194" text-anchor="middle">Nginx 1.27 + Angular 22</text>
+  <text class="uml-t tiny" x="246" y="212">· sert les fichiers statiques compilés (SPA)</text>
+  <text class="uml-t tiny" x="246" y="226">· relaie /api vers livrai-api — terminaison TLS</text>
+  <text class="uml-t tiny" x="246" y="238" style="fill:var(--ink-faint)">image sans code source ni outils de compilation</text>
 
-  <line x1="372" y1="232" x2="372" y2="270" class="uml-l" marker-end="url(#arD)"/>
-  <text class="uml-t tiny" x="382" y="256">REST/JSON : 8080</text>
+  <!-- Flux 2 : front -> api -->
+  <line x1="380" y1="242" x2="380" y2="292" class="uml-l" marker-end="url(#arD)"/>
+  <circle cx="362" cy="266" r="9" style="fill:var(--accent)"/>
+  <text x="362" y="270" text-anchor="middle" style="font-family:ui-monospace,Menlo,monospace;font-size:10px;fill:#fff;font-weight:700">2</text>
+  <text class="uml-t tiny" x="392" y="262">REST / JSON : 8080</text>
+  <text class="uml-t tiny" x="392" y="275" style="fill:var(--ink-faint)">en-tête Authorization: Bearer</text>
 
-  <!-- Réseau interne -->
-  <rect class="grp" x="48" y="262" width="644" height="222" rx="5"/>
-  <text class="uml-t tiny" x="60" y="278">réseau : livrai-internal — non exposé à l'extérieur</text>
+  <!-- ---- Réseau interne ---- -->
+  <rect class="grp" x="42" y="272" width="676" height="294" rx="5"/>
+  <text class="uml-t tiny" x="54" y="288">réseau « livrai-internal » — aucun port publié sur l'hôte</text>
 
-  <rect class="uml-hdr" x="188" y="288" width="368" height="90" rx="4"/>
-  <text class="uml-t stereo" x="372" y="308" text-anchor="middle">«container» livrai-api  ×N instances</text>
-  <text class="uml-t name" x="372" y="327" text-anchor="middle">Spring Boot 4.1 — Java 25</text>
-  <text class="uml-t tiny" x="204" y="346">· sans état : toute instance traite toute requête</text>
-  <text class="uml-t tiny" x="204" y="361">· /actuator/health · /actuator/metrics</text>
+  <!-- API, répliquée : pile de 3 -->
+  <rect class="uml-hdr" x="200" y="316" width="356" height="96" rx="4" style="opacity:.35"/>
+  <rect class="uml-hdr" x="194" y="310" width="356" height="96" rx="4" style="opacity:.6"/>
+  <rect class="uml-hdr" x="188" y="304" width="356" height="96" rx="4"/>
+  <text class="uml-t stereo" x="366" y="322" text-anchor="middle">«container» livrai-api — répliqué ×N</text>
+  <text class="uml-t name" x="366" y="341" text-anchor="middle">Spring Boot 4.1 — Java 25 LTS</text>
+  <text class="uml-t tiny" x="202" y="359" style="fill:var(--ok)">· sans état : toute instance traite toute requête (D-02)</text>
+  <text class="uml-t tiny" x="202" y="373">· pool HikariCP borné — plafond choisi (D-03)</text>
+  <text class="uml-t tiny" x="202" y="387">· /actuator/health · /actuator/metrics</text>
 
-  <line x1="372" y1="378" x2="372" y2="408" class="uml-l" marker-end="url(#arD)"/>
-  <text class="uml-t tiny" x="382" y="398">JDBC : 5432</text>
+  <!-- Flux 3 : api -> db -->
+  <line x1="366" y1="400" x2="366" y2="446" class="uml-l" marker-end="url(#arD)"/>
+  <circle cx="348" cy="423" r="9" style="fill:var(--accent)"/>
+  <text x="348" y="427" text-anchor="middle" style="font-family:ui-monospace,Menlo,monospace;font-size:10px;fill:#fff;font-weight:700">3</text>
+  <text class="uml-t tiny" x="378" y="419">JDBC : 5432</text>
+  <text class="uml-t tiny" x="378" y="432" style="fill:var(--ink-faint)">connexions bornées et restituées</text>
 
-  <rect class="uml-box" x="188" y="410" width="368" height="62" rx="4"/>
-  <text class="uml-t stereo" x="372" y="430" text-anchor="middle">«container» livrai-db</text>
-  <text class="uml-t name" x="372" y="449" text-anchor="middle">PostgreSQL 18</text>
-  <text class="uml-t tiny" x="372" y="464" text-anchor="middle">volume persistant — seul composant à état</text>
+  <!-- Base -->
+  <rect class="uml-box" x="188" y="448" width="356" height="72" rx="4"/>
+  <text class="uml-t stereo" x="366" y="466" text-anchor="middle">«container» livrai-db</text>
+  <text class="uml-t name" x="366" y="484" text-anchor="middle">PostgreSQL 18</text>
+  <text class="uml-t tiny" x="366" y="500" text-anchor="middle" style="fill:var(--crit)">seul composant à état — point de défaillance unique subsistant</text>
+  <text class="uml-t tiny" x="366" y="513" text-anchor="middle" style="fill:var(--ink-faint)">jamais joignable depuis l'extérieur</text>
 
   <!-- Volume -->
-  <rect class="uml-box" x="576" y="410" width="106" height="62" rx="4" style="fill:var(--accent-soft)"/>
-  <text class="uml-t stereo" x="629" y="430" text-anchor="middle">«volume»</text>
-  <text class="uml-t tiny" x="629" y="448" text-anchor="middle">livrai-data</text>
-  <text class="uml-t tiny" x="629" y="463" text-anchor="middle">sauvegardé</text>
-  <line x1="556" y1="441" x2="572" y2="441" class="uml-l"/>
+  <rect class="uml-box" x="574" y="448" width="132" height="72" rx="4" style="fill:var(--accent-soft)"/>
+  <text class="uml-t stereo" x="640" y="466" text-anchor="middle">«volume»</text>
+  <text class="uml-t name" x="640" y="484" text-anchor="middle">livrai-data</text>
+  <text class="uml-t tiny" x="640" y="500" text-anchor="middle">persistant</text>
+  <text class="uml-t tiny" x="640" y="513" text-anchor="middle">et sauvegardé</text>
+  <line x1="544" y1="484" x2="570" y2="484" class="uml-l"/>
 
-  <!-- Secrets -->
-  <rect class="uml-box" x="62" y="288" width="112" height="90" rx="4" style="fill:var(--accent-soft)"/>
-  <text class="uml-t stereo" x="118" y="308" text-anchor="middle">«config»</text>
-  <text class="uml-t tiny" x="118" y="326" text-anchor="middle">Variables</text>
-  <text class="uml-t tiny" x="118" y="341" text-anchor="middle">d'environnement</text>
-  <text class="uml-t tiny" x="118" y="359" text-anchor="middle">et secrets</text>
-  <text class="uml-t tiny" x="118" y="374" text-anchor="middle">— corrige D-06</text>
-  <line x1="174" y1="330" x2="184" y2="330" class="uml-l" marker-end="url(#arD)"/>
+  <!-- Config / secrets -->
+  <rect class="uml-box" x="56" y="304" width="122" height="96" rx="4" style="fill:var(--accent-soft)"/>
+  <text class="uml-t stereo" x="117" y="322" text-anchor="middle">«configuration»</text>
+  <text class="uml-t tiny" x="117" y="340" text-anchor="middle">Variables</text>
+  <text class="uml-t tiny" x="117" y="353" text-anchor="middle">d'environnement</text>
+  <text class="uml-t tiny" x="117" y="366" text-anchor="middle">et secrets injectés</text>
+  <text class="uml-t tiny" x="117" y="384" text-anchor="middle" style="fill:var(--ok)">corrige D-06</text>
+  <line x1="178" y1="352" x2="184" y2="352" class="uml-l" marker-end="url(#arD)"/>
 
   <!-- Observabilité -->
-  <rect class="uml-box" x="576" y="288" width="106" height="90" rx="4" style="fill:var(--accent-soft)"/>
-  <text class="uml-t stereo" x="629" y="308" text-anchor="middle">«optionnel»</text>
-  <text class="uml-t tiny" x="629" y="326" text-anchor="middle">Collecteur</text>
-  <text class="uml-t tiny" x="629" y="341" text-anchor="middle">métriques</text>
-  <text class="uml-t tiny" x="629" y="359" text-anchor="middle">et journaux</text>
-  <line x1="556" y1="330" x2="572" y2="330" class="uml-l" marker-end="url(#arD)"/>
+  <rect class="uml-box" x="574" y="304" width="132" height="96" rx="4" style="fill:var(--accent-soft)"/>
+  <text class="uml-t stereo" x="640" y="322" text-anchor="middle">«optionnel»</text>
+  <text class="uml-t tiny" x="640" y="340" text-anchor="middle">Collecteur</text>
+  <text class="uml-t tiny" x="640" y="353" text-anchor="middle">métriques et journaux</text>
+  <text class="uml-t tiny" x="640" y="371" text-anchor="middle" style="fill:var(--ink-faint)">1er indicateur :</text>
+  <text class="uml-t tiny" x="640" y="384" text-anchor="middle" style="fill:var(--ink-faint)">occupation du pool</text>
+  <line x1="548" y1="352" x2="570" y2="352" class="uml-l dash" marker-end="url(#arDx)"/>
 
-  <!-- Note réplication -->
-  <text class="uml-t tiny" x="372" y="516" text-anchor="middle">Les N instances de livrai-api sont interchangeables : aucune session en mémoire (D-02).</text>
-  <text class="uml-t tiny" x="372" y="534" text-anchor="middle">Ajouter une instance ne déconnecte personne — ce qui était impossible dans l'application existante.</text>
+  <!-- Légende bas -->
+  <line x1="42" y1="596" x2="718" y2="596" style="stroke:var(--line);stroke-width:1"/>
+  <text class="uml-t tiny" x="42" y="614" style="fill:var(--ink-soft)">Une même image est promue de la recette à la production : seule la configuration change, jamais le binaire (D-06).</text>
+  <text class="uml-t tiny" x="42" y="630" style="fill:var(--ink-soft)">Ajouter une instance de livrai-api ne déconnecte personne — impossible dans l'application existante, dont la session résidait en mémoire (D-02).</text>
+  <text class="uml-t tiny" x="42" y="646" style="fill:var(--ink-soft)">La haute disponibilité de livrai-db dépend de l'hébergeur et n'est pas tranchée dans ce document.</text>
 </svg>
 </div>
 <figcaption>
-  Diagramme de composants UML de l'architecture opérationnelle. Trois conteneurs, deux
-  réseaux. La base n'est jamais exposée à l'extérieur : elle n'est joignable que depuis
-  le réseau interne. Le conteneur d'API est réplicable parce qu'il ne conserve aucun état.
+  Diagramme de composants UML de l'architecture opérationnelle. Trois conteneurs répartis
+  sur deux réseaux, et le parcours numéroté d'une requête : ❶ le navigateur atteint le seul
+  conteneur exposé, ❷ Nginx relaie vers l'API sur le réseau interne, ❸ l'API interroge la
+  base via un pool borné. Seul <code>livrai-api</code> est réplicable — parce qu'il ne
+  conserve aucun état.
 </figcaption>
 </figure>
 
@@ -1804,7 +1832,7 @@ Authorization: Bearer &lt;jwt&gt;
     <tr>
       <td><code>price</code> sur la livraison</td>
       <td>Tables <code>invoice</code> et <code>invoice_line</code></td>
-      <td>La fiche exige la gestion de la facturation. Une facture regroupe plusieurs livraisons, usage B2B courant.</td>
+      <td>La fiche exige la gestion de la facturation. Une facture regroupe plusieurs prestations, usage B2B courant. Le rattachement à la livraison est porté par le libellé et non par une clé étrangère — voir <a href="#adr-11">ADR-11</a>.</td>
     </tr>
     <tr>
       <td>Aucune trace des actions</td>
@@ -1918,21 +1946,16 @@ Authorization: Bearer &lt;jwt&gt;
   <!-- invoice_line -->
   <rect class="uml-hdr" x="548" y="448" width="190" height="28" rx="4"/>
   <text class="uml-t name" x="643" y="467" text-anchor="middle">invoice_line</text>
-  <rect class="uml-box" x="548" y="476" width="190" height="96"/>
+  <rect class="uml-box" x="548" y="476" width="190" height="78"/>
   <text class="uml-t small" x="558" y="494">id : bigint «PK»</text>
   <text class="uml-t small" x="558" y="512">invoice_id : bigint «FK»</text>
-  <text class="uml-t small" x="558" y="530">delivery_id «FK,UQ»</text>
-  <text class="uml-t small" x="558" y="548">label : varchar</text>
-  <text class="uml-t small" x="558" y="566">amount_ht : numeric(12,2)</text>
+  <text class="uml-t small" x="558" y="530">label : varchar</text>
+  <text class="uml-t small" x="558" y="548">amount_ht : numeric(12,2)</text>
 
   <line x1="643" y1="406" x2="643" y2="442" class="uml-l"/>
   <text class="uml-t tiny" x="653" y="424">1..*</text>
 
-  <line x1="489" y1="500" x2="542" y2="500" class="uml-l"/>
-  <text class="uml-t tiny" x="500" y="494">1</text>
-  <text class="uml-t tiny" x="520" y="516">0..1</text>
-
-  <text class="uml-t tiny" x="380" y="600" text-anchor="middle">Sept tables. Les champs en couleur signalent une correction directe d'un constat d'audit.</text>
+  <text class="uml-t tiny" x="380" y="600" text-anchor="middle">Sept tables, aucun chemin circulaire. Les champs en couleur corrigent un constat d'audit.</text>
 </svg>
 </div>
 <figcaption>
@@ -1956,8 +1979,8 @@ Authorization: Bearer &lt;jwt&gt;
     devient impossible, quelle que soit l'erreur applicative.
   </li>
   <li>
-    <code>uq_invoice_line_delivery</code> — une livraison ne peut pas figurer sur deux
-    factures. La double facturation est écartée structurellement.
+    <code>ck_invoice_line_amount</code> — le montant d'une ligne de facture ne peut pas
+    être négatif.
   </li>
   <li>
     <code>ck_delivery_volume_positive</code> — le volume et le poids sont strictement
@@ -1994,6 +2017,11 @@ Authorization: Bearer &lt;jwt&gt;
       <td><code>db/postgres/02-seed.sql</code></td>
       <td><span class="b b-crit">Non</span></td>
       <td>Jeu de démonstration : quatre comptes internes, trois entreprises clientes, six livraisons couvrant l'ensemble du cycle, une facture. Les mots de passe y sont publics.</td>
+    </tr>
+    <tr>
+      <td><b>Choix assumé</b> — facture et livraison non reliées</td>
+      <td>—</td>
+      <td><code>invoice_line</code> ne porte aucune clé étrangère vers <code>delivery</code> : la livraison facturée est désignée en clair dans le libellé. Ce choix supprime le chemin circulaire du schéma, mais <b>retire au SGBD la capacité d'empêcher une double facturation</b> — ce contrôle relève désormais de la couche service. Voir <a href="#adr-11">ADR-11</a>.</td>
     </tr>
     <tr>
       <td><code>db/postgres/README.md</code></td>
@@ -2304,6 +2332,28 @@ Authorization: Bearer &lt;jwt&gt;
     <dd>Types énumérés natifs, qui traitent directement D-14 ; contraintes <code>CHECK</code> pleinement appliquées, qui traitent D-10 ; index partiels, qui servent la file de traitement de D-04.</dd>
     <dt>Coût assumé</dt>
     <dd>Migration de données obligatoire — hors périmètre de ce document — et montée en compétence de l'équipe sur un nouveau SGBD.</dd>
+  </dl>
+</div>
+
+<div class="adr" id="adr-11">
+  <div class="adr-head"><span class="adr-id">ADR-11</span><span class="adr-title">Facture et livraison non reliées en base</span></div>
+  <dl>
+    <dt>Contexte</dt>
+    <dd>Le modèle initial reliait chaque ligne de facture à la livraison facturée, avec une contrainte d'unicité interdisant de facturer deux fois la même livraison. Ce lien créait un chemin circulaire dans le schéma : <code>customer → delivery → invoice_line → invoice → customer</code>.</dd>
+    <dt>Décision</dt>
+    <dd><code>invoice_line</code> ne porte aucune clé étrangère vers <code>delivery</code>. La livraison facturée est désignée en clair dans le libellé de la ligne.</dd>
+    <dt>Ce que la décision apporte</dt>
+    <dd>Le schéma ne comporte plus aucun chemin circulaire et se lit plus directement. La suppression d'une livraison n'est plus retenue par une facture.</dd>
+    <dt>Coût assumé</dt>
+    <dd>
+      Trois conséquences à connaître. Aucune requête ne peut reconstituer les livraisons
+      d'une facture. <b>Plus aucune contrainte n'empêche la double facturation</b> : ce
+      contrôle, auparavant garanti par le SGBD, repose désormais sur la couche service —
+      donc sur la vigilance du code. Et le rapprochement facture ↔ livraison s'appuie sur
+      du texte libre que la base ne vérifie pas.
+    </dd>
+    <dt>Réversibilité</dt>
+    <dd>Réintroduire <code>invoice_line.delivery_id</code> et sa contrainte d'unicité suffirait à rétablir la garantie, au prix du retour du chemin circulaire.</dd>
   </dl>
 </div>
 

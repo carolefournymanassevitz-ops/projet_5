@@ -242,30 +242,48 @@ CREATE INDEX idx_invoice_status          ON invoice (status);
 
 -- -----------------------------------------------------------------------------
 -- Table : invoice_line
--- Une ligne de facture = une livraison facturée, au prix retenu le jour de
--- l'émission. Le montant est recopié et non lu depuis delivery.price_ht :
--- une facture émise ne doit pas changer parce qu'on a corrigé un tarif après
+-- Une ligne de facture décrit une prestation facturée et son montant, au prix
+-- retenu le jour de l'émission. Le montant est porté par la ligne elle-même :
+-- une facture émise ne doit pas changer parce qu'un tarif a été corrigé après
 -- coup. C'est une exigence comptable, pas une optimisation.
+--
+-- CHOIX DE CONCEPTION — pas de lien vers delivery
+-- La ligne ne référence aucune livraison : elle est reliée à sa seule facture.
+-- La livraison facturée est désignée en clair dans `label` (par exemple
+-- « Livraison LIV-2026-000001 — Paris 11e → Paris 4e »).
+--
+-- Ce que ce choix simplifie : le schéma n'a plus de chemin circulaire
+-- customer → delivery → invoice_line → invoice → customer, et la suppression
+-- d'une livraison n'est plus retenue par une facture.
+--
+-- Ce que ce choix coûte, et qu'il faut assumer :
+--   · aucune requête ne peut reconstituer les livraisons d'une facture, ni
+--     savoir si une livraison donnée a déjà été facturée ;
+--   · plus aucune contrainte n'empêche de facturer deux fois la même
+--     livraison — le contrôle doit être porté par la couche service, donc par
+--     la vigilance du code, ce que la base garantissait auparavant ;
+--   · le rapprochement facture ↔ livraison repose sur du texte libre, non
+--     vérifiable par le SGBD.
+-- Rétablir la traçabilité supposerait de réintroduire une colonne
+-- delivery_id et son unicité.
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE invoice_line (
     id          BIGINT        GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     invoice_id  BIGINT        NOT NULL,
-    delivery_id BIGINT        NOT NULL,
     label       VARCHAR(255)  NOT NULL,
     amount_ht   NUMERIC(12,2) NOT NULL,
 
     CONSTRAINT fk_invoice_line_invoice
-        FOREIGN KEY (invoice_id)  REFERENCES invoice  (id) ON DELETE CASCADE,
-    CONSTRAINT fk_invoice_line_delivery
-        FOREIGN KEY (delivery_id) REFERENCES delivery (id) ON DELETE RESTRICT,
+        FOREIGN KEY (invoice_id) REFERENCES invoice (id) ON DELETE CASCADE,
 
-    -- Une livraison ne peut pas être facturée deux fois.
-    CONSTRAINT uq_invoice_line_delivery UNIQUE (delivery_id),
     CONSTRAINT ck_invoice_line_amount CHECK (amount_ht >= 0)
 );
 
 CREATE INDEX idx_invoice_line_invoice ON invoice_line (invoice_id);
+
+COMMENT ON COLUMN invoice_line.label IS
+    'Désignation de la prestation facturée, référence de livraison comprise — texte libre, non contrôlé par le SGBD';
 
 -- -----------------------------------------------------------------------------
 -- Table : delivery_status_history

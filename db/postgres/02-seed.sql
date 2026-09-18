@@ -133,10 +133,12 @@ SELECT 'FAC-2026-000001', c.id, 'ISSUED',
 FROM customer c, app_user u
 WHERE c.company_name = 'Boulangerie Durand' AND u.email = 'meilin@livrai.fr';
 
-INSERT INTO invoice_line (invoice_id, delivery_id, label, amount_ht)
-SELECT i.id, d.id, 'Livraison LIV-2026-000001 — Paris 11e → Paris 4e', 180.00
-FROM invoice i, delivery d
-WHERE i.reference = 'FAC-2026-000001' AND d.reference = 'LIV-2026-000001';
+-- La ligne ne référence plus la livraison : celle-ci est désignée dans le
+-- libellé. Le rapprochement facture ↔ livraison se lit, il ne se requête plus.
+INSERT INTO invoice_line (invoice_id, label, amount_ht)
+SELECT i.id, 'Livraison LIV-2026-000001 — Paris 11e → Paris 4e', 180.00
+FROM invoice i
+WHERE i.reference = 'FAC-2026-000001';
 
 -- Aligne les séquences sur les références déjà insérées.
 SELECT setval('seq_delivery_reference', 6);

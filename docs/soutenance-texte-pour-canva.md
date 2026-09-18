@@ -433,21 +433,18 @@ Et j'ajoute une table d'historique des changements de statut : qui a accepté, r
 
 **2 blocs :**
 
-**Test 1 — le scénario D-10**
+**Le scénario D-10, rejoué en base**
 ```
 INSERT volume -99, poids -50
 → ERROR: violates check constraint
   "ck_delivery_volume_positive"
 ```
-La saisie que l'application acceptait, stockait et rendait facturable est désormais **impossible au niveau du stockage**.
+La saisie que l'application acceptait, stockait et rendait facturable est désormais **impossible au niveau du stockage** — et pas seulement corrigée dans le code.
 
-**Test 2 — double facturation**
-```
-INSERT même livraison sur 2 factures
-→ ERROR: duplicate key violates
-  "uq_invoice_line_delivery"
-```
-Une règle comptable portée par la base, et non par la vigilance du code.
+**Ce que la base garantit désormais**
+Volume et poids strictement positifs · une livraison facturée porte obligatoirement un prix · une livraison livrée porte une date · statuts et rôles contraints par des types énumérés · unicité des références métier.
+
+*Chaque état invalide devient irreprésentable, quel que soit le chemin d'écriture.*
 
 **3 chiffres (en vert) :**
 - **7** tables créées — Types énumérés, contraintes, 9 index, déclencheurs.
